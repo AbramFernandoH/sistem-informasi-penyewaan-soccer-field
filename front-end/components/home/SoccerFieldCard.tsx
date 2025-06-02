@@ -22,11 +22,7 @@ const SoccerFieldCard: FC<SoccerFieldCardProps> = ({ imgUrl, price, title }) => 
       <div className="mt-4 flex justify-between">
         <div>
           <h3 className="text-sm text-gray-700">
-            <a href="#">
-              <span aria-hidden="true" className="absolute inset-0"></span>
-
-              {title}
-            </a>
+            {title}
           </h3>
         </div>
 
