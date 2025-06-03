@@ -1,11 +1,11 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss'
 
 export default {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/tailwind-datepicker-react/dist/**/*.js",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './node_modules/tailwind-datepicker-react/dist/**/*.js',
   ],
   theme: {
     extend: {
@@ -16,9 +16,9 @@ export default {
         secondary: {
           DEFAULT: '#3c333d',
         },
-        footer: '#212121'
+        footer: '#212121',
       },
     },
   },
   plugins: [],
-} satisfies Config;
+} satisfies Config

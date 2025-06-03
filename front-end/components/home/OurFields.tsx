@@ -1,7 +1,7 @@
-'use client';
-import { FC, useState } from 'react';
-import SoccerFieldCard, {SoccerFieldCardProps} from "@/components/home/SoccerFieldCard";
-import FieldOrderModal from "@/components/FieldOrderModal";
+'use client'
+import { FC, useState } from 'react'
+import SoccerFieldCard, { SoccerFieldCardProps } from '@/components/home/SoccerFieldCard'
+import FieldOrderModal from '@/components/FieldOrderModal'
 
 type OurFieldsProps = {
   titleClassName?: string
@@ -9,6 +9,7 @@ type OurFieldsProps = {
 }
 
 const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundColor = '' }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedField, setSelectedField] = useState<SoccerFieldCardProps>({
     imgUrl: '',
     title: '',
@@ -40,7 +41,7 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
       imgUrl: '@/public/dummy-soccer-field.jpg',
       title: 'Lapangan 5',
       price: 150000,
-    }
+    },
   ]
 
   const handleClickCard = (data: SoccerFieldCardProps) => () => {
@@ -49,16 +50,16 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
 
   return (
     <section className={`bg-primary ${customBackgroundColor}`}>
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <div className='mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8'>
         <h2 className={`text-2xl font-bold text-gray-900 text-center ${titleClassName}`}>Lapangan Kami</h2>
 
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        <div className='mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8'>
           {data.map((data, idx) => (
             <button
               key={idx}
               onClick={handleClickCard(data)}
-              data-modal-target="field-modal"
-              data-modal-toggle="field-modal"
+              data-modal-target='field-modal'
+              data-modal-toggle='field-modal'
             >
               <SoccerFieldCard {...data} />
             </button>
@@ -68,7 +69,7 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
         <FieldOrderModal />
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default OurFields;
+export default OurFields

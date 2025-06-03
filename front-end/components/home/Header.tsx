@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const Header = () => {
   return (
@@ -13,7 +13,7 @@ const Header = () => {
         Kontak Sekarang
       </button>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header
