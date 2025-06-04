@@ -3,7 +3,6 @@ import { Bars3Icon } from '@heroicons/react/24/outline'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import Breadcrumbs, { BreadcrumbData } from '@/components/cms/Breadcrumbs'
-import Image from 'next/image'
 
 type MainSectionProps = {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>
@@ -42,13 +41,13 @@ const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) 
           >
             <MenuButton className='-m-1.5 flex items-center p-1.5'>
               <span className='sr-only'>Open user menu</span>
-              <Image
+
+              <img
                 src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
                 alt='profile-picture'
-                className='rounded-full bg-gray-50'
-                width={32}
-                height={32}
+                className='size-8 rounded-full bg-gray-50'
               />
+
               <span className='hidden lg:flex lg:items-center'>
                 <span
                   aria-hidden='true'
