@@ -1,17 +1,11 @@
 'use client'
 import CMSLayout from '@/layouts/cms'
-import Table, {TableHeader} from '@/components/cms/Table'
-import { BreadcrumbData } from "@/components/cms/Breadcrumbs"
+import Table, { TableHeader } from '@/components/cms/Table'
+import { BreadcrumbData } from '@/components/cms/Breadcrumbs'
 
 export default function Admin() {
-  const breadcrumbsPages: BreadcrumbData[] = [
-    { name: 'List Admin', path: '/cms/admins', current: true }
-  ]
-  const tableHeaders: TableHeader[] = [
-    { name: 'Nama' },
-    { name: 'Email' },
-    { name: 'Action' },
-  ]
+  const breadcrumbsPages: BreadcrumbData[] = [{ name: 'List Admin', path: '/cms/admins', current: true }]
+  const tableHeaders: TableHeader[] = [{ name: 'Nama' }, { name: 'Email' }, { name: 'Action' }]
 
   return (
     <CMSLayout pages={breadcrumbsPages}>

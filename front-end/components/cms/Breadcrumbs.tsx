@@ -14,22 +14,37 @@ type BreadcrumbsProps = {
 
 const Breadcrumbs: FC<BreadcrumbsProps> = ({ pages }) => {
   return (
-    <nav aria-label="Breadcrumb" className="flex">
-      <ol role="list" className="flex items-center space-x-4">
+    <nav
+      aria-label='Breadcrumb'
+      className='flex'
+    >
+      <ol
+        role='list'
+        className='flex items-center space-x-4'
+      >
         <li>
           <div>
-            <Link href="/cms/dashboard" className="text-gray-500 hover:text-gray-700">
-              <HomeIcon aria-hidden="true" className="size-5 shrink-0" />
+            <Link
+              href='/cms/dashboard'
+              className='text-gray-500 hover:text-gray-700'
+            >
+              <HomeIcon
+                aria-hidden='true'
+                className='size-5 shrink-0'
+              />
 
-              <span className="sr-only">Home</span>
+              <span className='sr-only'>Home</span>
             </Link>
           </div>
         </li>
 
         {pages.map((page) => (
           <li key={page.name}>
-            <div className="flex items-center space-x-4">
-              <ChevronRightIcon aria-hidden="true" className="size-5 shrink-0 text-gray-400" />
+            <div className='flex items-center space-x-4'>
+              <ChevronRightIcon
+                aria-hidden='true'
+                className='size-5 shrink-0 text-gray-400'
+              />
 
               <Link
                 href={page.path}
