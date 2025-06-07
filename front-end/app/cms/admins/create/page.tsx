@@ -29,7 +29,7 @@ export default function CreateAdmin() {
 
   const breadcrumbsPages: BreadcrumbData[] = [
     { name: 'List Admin', path: '/cms/admins', current: false },
-    { name: 'Create Admin', path: '/cms/admins/create', current: true },
+    { name: 'Tambah Admin', path: '/cms/admins/create', current: true },
   ]
 
   const onSubmit = (data: CreateAdminRequest) => {
@@ -39,7 +39,7 @@ export default function CreateAdmin() {
   return (
     <CMSLayout pages={breadcrumbsPages}>
       <Header
-        title='Create Admin'
+        title='Tambah Admin'
         backUrl='/cms/admins'
       />
 

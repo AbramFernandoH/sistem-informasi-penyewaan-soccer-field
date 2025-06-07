@@ -6,11 +6,7 @@ type IFormError = {
 }
 
 const FormError: FC<IFormError> = ({ className = '', message }) => {
-  return (
-    <span className={`font-redHatDisplay text-xs font-medium leading-[16px] text-mdi-danger ${className}`}>
-      {message}
-    </span>
-  )
+  return <span className={`text-xs font-medium leading-[16px] text-red-500 ${className}`}>{message}</span>
 }
 
 export default FormError

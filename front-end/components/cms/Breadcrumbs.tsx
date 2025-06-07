@@ -46,12 +46,16 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({ pages }) => {
                 className='size-5 shrink-0 text-gray-400'
               />
 
-              <Link
-                href={page.path}
-                className={`text-sm font-medium ${page.current ? 'text-indigo-500 hover:text-indigo-700' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                {page.name}
-              </Link>
+              {page.current ? (
+                <p className='text-sm font-medium text-indigo-500 hover:text-indigo-700'>{page.name}</p>
+              ) : (
+                <Link
+                  href={page.path}
+                  className='text-sm font-medium text-gray-500 hover:text-gray-700'
+                >
+                  {page.name}
+                </Link>
+              )}
             </div>
           </li>
         ))}
