@@ -20,7 +20,6 @@ const CMSLayout: FC<CMSLayoutProps> = ({ children, pages }) => {
   const navigation = [
     { name: 'Dashboard', href: '/cms/dashboard', icon: HomeIcon, current: pathname.includes('/cms/dashboard') },
     { name: 'Admin', href: '/cms/admins', icon: UserIcon, current: pathname.includes('/cms/admins') },
-    { name: 'Pengguna', href: '/cms/users', icon: UserIcon, current: pathname.includes('/cms/users') },
     { name: 'Lapangan', href: '/cms/fields', icon: UsersIcon, current: pathname.includes('/cms/fields') },
     { name: 'Jadwal', href: '/cms/schedules', icon: CalendarIcon, current: pathname.includes('/cms/schedules') },
     { name: 'Laporan', href: '/cms/reports', icon: ChartPieIcon, current: pathname.includes('/cms/reports') },
