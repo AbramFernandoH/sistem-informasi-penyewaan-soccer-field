@@ -1,21 +1,15 @@
 'use client'
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import Link from 'next/link'
 
 import { PlusIcon } from '@heroicons/react/24/outline'
 import Pagination from '@/components/cms/Pagination'
 
-export type TableHeader = {
-  name: string
-}
-
-export type DefaultTableData = Record<string, string>
-
-export type TableProps<T = DefaultTableData> = {
+export type TableProps = {
   title: string
   description: string
-  headers: TableHeader[]
-  data: T[]
+  headers: string[]
+  data: (string | ReactNode)[][]
   addButton?: {
     path: string
     text?: string
@@ -54,11 +48,11 @@ const Table: FC<TableProps> = ({ title, description, addButton, headers, data })
                 <tr>
                   {headers.map((header, idx) => (
                     <th
-                      key={`${idx}-${header.name}`}
+                      key={`${idx}-${header}`}
                       scope='col'
                       className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 ${idx === 0 ? 'sm:pl-0' : idx + 1 === headers.length ? 'py-3.5 pl-3 pr-4 sm:pr-0' : ''}`}
                     >
-                      {header.name}
+                      {header}
                     </th>
                   ))}
                 </tr>
@@ -67,11 +61,14 @@ const Table: FC<TableProps> = ({ title, description, addButton, headers, data })
               <tbody className='divide-y divide-gray-200'>
                 {data.map((tableData, idx) => (
                   <tr key={idx}>
-                    <td
-                      className={`whitespace-nowrap py-4 pl-4 ${idx === 0 ? 'pr-3 sm:pl-0' : idx + 1 === data.length ? 'pl-3 pr-4 sm:pr-0' : ''} text-sm font-medium text-gray-500`}
-                    >
-                      {/*{tableData ?? ''}*/}
-                    </td>
+                    {tableData.map((t, tIdx) => (
+                      <td
+                        key={`${idx}-${tIdx}`}
+                        className={`whitespace-nowrap py-4 pl-4 ${tIdx === 0 ? 'pr-3 sm:pl-0' : tIdx + 1 === data.length ? 'pl-3 pr-4 sm:pr-0' : ''} text-sm font-medium text-gray-500`}
+                      >
+                        {t}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
