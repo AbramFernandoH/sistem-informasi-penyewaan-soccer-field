@@ -19,7 +19,7 @@ export default function DayCalendar() {
 
     if (container.current !== null && containerOffset.current !== null) {
       container.current.scrollTop =
-        ((container.current.scrollHeight - containerOffset.current.offsetHeight - 180) * currentMinute) / 1440
+        ((container.current.scrollHeight - containerOffset.current.offsetHeight - 700) * currentMinute) / 1440
     }
   }, [])
 
@@ -143,22 +143,22 @@ export default function DayCalendar() {
                     className='relative mt-px flex'
                     style={{ gridRow: '10 / span 12' }}
                   >
-                    <a
-                      href='#'
+                    <Link
+                      href={`/cms/schedules/${String(params.date)}/${String(params.fieldId)}/sch-1/edit`}
                       className='group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-blue-50 p-2 text-xs/5 hover:bg-blue-100'
                     >
                       <p className='order-1 font-semibold text-blue-700'>Breakfast</p>
                       <p className='text-blue-500 group-hover:text-blue-700'>
                         <time dateTime='2022-01-22T06:00'>6:00 AM</time>
                       </p>
-                    </a>
+                    </Link>
                   </li>
                   <li
                     className='relative mt-px flex'
                     style={{ gridRow: '92 / span 30' }}
                   >
-                    <a
-                      href='#'
+                    <Link
+                      href={`/cms/schedules/${String(params.date)}/${String(params.fieldId)}/sch-2/edit`}
                       className='group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-pink-50 p-2 text-xs/5 hover:bg-pink-100'
                     >
                       <p className='order-1 font-semibold text-pink-700'>Flight to Paris</p>
@@ -168,14 +168,14 @@ export default function DayCalendar() {
                       <p className='text-pink-500 group-hover:text-pink-700'>
                         <time dateTime='2022-01-22T07:30'>7:30 AM</time>
                       </p>
-                    </a>
+                    </Link>
                   </li>
                   <li
                     className='relative mt-px flex'
                     style={{ gridRow: '134 / span 18' }}
                   >
-                    <a
-                      href='#'
+                    <Link
+                      href={`/cms/schedules/${String(params.date)}/${String(params.fieldId)}/sch-3/edit`}
                       className='group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-indigo-50 p-2 text-xs/5 hover:bg-indigo-100'
                     >
                       <p className='order-1 font-semibold text-indigo-700'>Sightseeing</p>
@@ -183,7 +183,7 @@ export default function DayCalendar() {
                       <p className='text-indigo-500 group-hover:text-indigo-700'>
                         <time dateTime='2022-01-22T11:00'>11:00 AM</time>
                       </p>
-                    </a>
+                    </Link>
                   </li>
                 </ol>
               </div>
