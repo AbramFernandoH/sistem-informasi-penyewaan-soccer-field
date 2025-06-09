@@ -1,122 +1,71 @@
-import NextImg from 'next/image'
 import React from 'react'
-
-const navigation = {
-  solutions: [
-    { name: 'Marketing', href: '#' },
-    { name: 'Analytics', href: '#' },
-    { name: 'Automation', href: '#' },
-    { name: 'Commerce', href: '#' },
-    { name: 'Insights', href: '#' },
-  ],
-  support: [
-    { name: 'Submit ticket', href: '#' },
-    { name: 'Documentation', href: '#' },
-    { name: 'Guides', href: '#' },
-  ],
-  company: [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Jobs', href: '#' },
-    { name: 'Press', href: '#' },
-  ],
-  legal: [
-    { name: 'Terms of service', href: '#' },
-    { name: 'Privacy policy', href: '#' },
-    { name: 'License', href: '#' },
-  ],
-}
+import NextImg from 'next/image'
+import Link from 'next/link'
 
 export default function Footer() {
+  const links = [
+    {
+      url: '/',
+      name: 'Beranda',
+    },
+    {
+      url: '/about',
+      name: 'Tentang Kami',
+    },
+    {
+      url: '/fields',
+      name: 'Lapangan Kami',
+    },
+    {
+      url: '/cart',
+      name: 'Keranjang',
+    },
+  ]
+
   return (
-    <footer className='bg-gray-900'>
-      <div className='mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32'>
-        <div className='xl:grid xl:grid-cols-3 xl:gap-8'>
-          <NextImg
-            src='/goedang-futsal-icon.png'
-            alt='goedang-futsal-icon'
-            width={50}
-            height={50}
-          />
-          <div className='mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0'>
-            <div className='md:grid md:grid-cols-2 md:gap-8'>
-              <div>
-                <h3 className='text-sm/6 font-semibold text-white'>Solutions</h3>
-                <ul
-                  role='list'
-                  className='mt-6 space-y-4'
+    <footer className='shadow-sm bg-gray-900'>
+      <div className='w-full max-w-screen-xl mx-auto p-4 md:py-8'>
+        <div className='flex flex-col lg:flex-row items-center justify-between'>
+          <Link
+            href='/'
+            className='flex items-center mb-4 lg:mb-0 space-x-3 rtl:space-x-reverse'
+          >
+            <NextImg
+              src='/goedang-futsal-icon.png'
+              alt='goedang-futsal-icon'
+              width={50}
+              height={50}
+            />
+
+            <span className='self-center text-2xl font-semibold whitespace-nowrap text-white'>Goedang Futsal</span>
+          </Link>
+
+          <ul className='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center mb-0 text-sm font-medium text-gray-400'>
+            {links.map((link) => (
+              <li key={link.url}>
+                <Link
+                  href={link.url}
+                  className='hover:underline me-4 md:me-6'
                 >
-                  {navigation.solutions.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className='text-sm/6 text-gray-400 hover:text-white'
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className='mt-10 md:mt-0'>
-                <h3 className='text-sm/6 font-semibold text-white'>Support</h3>
-                <ul
-                  role='list'
-                  className='mt-6 space-y-4'
-                >
-                  {navigation.support.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className='text-sm/6 text-gray-400 hover:text-white'
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className='md:grid md:grid-cols-2 md:gap-8'>
-              <div>
-                <h3 className='text-sm/6 font-semibold text-white'>Company</h3>
-                <ul
-                  role='list'
-                  className='mt-6 space-y-4'
-                >
-                  {navigation.company.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className='text-sm/6 text-gray-400 hover:text-white'
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className='mt-10 md:mt-0'>
-                <h3 className='text-sm/6 font-semibold text-white'>Legal</h3>
-                <ul
-                  role='list'
-                  className='mt-6 space-y-4'
-                >
-                  {navigation.legal.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className='text-sm/6 text-gray-400 hover:text-white'
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
+
+        <hr className='my-6 border-gray-200 mx-auto dark:border-gray-700 lg:my-8' />
+
+        <span className='block text-sm text-gray-500 text-center dark:text-gray-400'>
+          © {new Date().getFullYear()}{' '}
+          <Link
+            href='/'
+            className='hover:underline'
+          >
+            Goedang Futsal™
+          </Link>
+          . All Rights Reserved.
+        </span>
       </div>
     </footer>
   )
