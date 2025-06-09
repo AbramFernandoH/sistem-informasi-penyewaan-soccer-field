@@ -9,7 +9,8 @@ type OurFieldsProps = {
 }
 
 const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundColor = '' }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isOpenModal, setIsOpenModal] = useState(false)
+
   const [selectedField, setSelectedField] = useState<SoccerFieldCardProps>({
     imgUrl: '',
     title: '',
@@ -46,6 +47,12 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
 
   const handleClickCard = (data: SoccerFieldCardProps) => () => {
     setSelectedField(data)
+
+    setIsOpenModal(true)
+  }
+
+  const handleClickCloseModal = () => {
+    setIsOpenModal(false)
   }
 
   return (
@@ -58,15 +65,17 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
             <button
               key={idx}
               onClick={handleClickCard(data)}
-              data-modal-target='field-modal'
-              data-modal-toggle='field-modal'
             >
               <SoccerFieldCard {...data} />
             </button>
           ))}
         </div>
 
-        <FieldOrderModal />
+        <FieldOrderModal
+          isOpen={isOpenModal}
+          closeModal={handleClickCloseModal}
+          fieldName={selectedField.title}
+        />
       </div>
     </section>
   )
