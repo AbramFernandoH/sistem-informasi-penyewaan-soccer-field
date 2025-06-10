@@ -1,29 +1,29 @@
-// npm modules
-require("dotenv").config();
-const express = require("express");
+const express = require('express');
+const cors = require('cors');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mongoose = require("mongoose");
-const methodOverride = require("method-override");
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const flash = require("connect-flash");
 const MongoStore = require("connect-mongo");
 
-// native modules
-const path = require("path");
-
-// local modules
+// models
 const User = require('./model/user');
+const AdminUser = require('./model/admin');
+
+// routes
 const authRoutes = require('./routes/auth');
-const dashboardRoutes = require('./routes/dashboard');
+const authAdminRoutes = require('./routes/authAdmin');
 const userRoutes = require('./routes/user');
-const citizenFeesRoutes = require('./routes/citizenFees');
-const outcomeRoutes = require("./routes/outcome");
+const adminUserRoutes = require('./routes/admin');
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
 const dbUrl =
-    process.env.MONGODB_ATLAS_URL || "mongodb://localhost:27017/molina";
+    process.env.MONGODB_ATLAS_URL || "mongodb://localhost:27017/goedang_futsal";
 
 mongoose.connect(dbUrl);
 
@@ -31,15 +31,13 @@ const db = mongoose.connection;
 db.on("error", console.log.bind(console, "Connection error!"));
 db.once("open", () => console.log("Database connected"));
 
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
-
 app.use(express.json());
+// parse url encoded string into query string with qs library
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-app.use(methodOverride("_method"));
-app.use(flash());
-app.use(flash());
+// ✅ Enable CORS for localhost:3000
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
@@ -55,7 +53,7 @@ store.on("error", function (e) {
 
 app.use(
     session({
-        name: "cateringSession",
+        name: "goedangFutsalSession",
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
@@ -68,32 +66,36 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
+passport.use('user-local', new LocalStrategy(User.authenticate()));
+passport.use('admin-local', new LocalStrategy(AdminUser.authenticate()));
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
-app.use((req, res, next) => {
-    res.locals.authUser = req.user;
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    next();
+passport.serializeUser((user, done) => {
+    done(null, { id: user.id, type: user.type });
 });
 
-app.get('/', (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/login');
+passport.deserializeUser(async (obj, done) => {
+    try {
+        let user;
+        if (obj.type === 'user') {
+            user = await User.findById(obj.id);
+        } else if (obj.type === 'admin') {
+            user = await AdminUser.findById(obj.id);
+        }
+        done(null, user);
+    } catch (err) {
+        done(err);
     }
-
-    return res.redirect('/dashboard');
 })
 
-app.use('/', authRoutes);
-app.use('/dashboard', dashboardRoutes);
-app.use('/user', userRoutes);
-app.use('/citizen-fees', citizenFeesRoutes);
-app.use("/outcome", outcomeRoutes);
+app.get('/health', (req, res) => {
+    res.json({ message: 'api connected' });
+});
 
-const PORT = process.env.PORT || 3000;
+app.use('/auth', authRoutes);
+app.use('/auth-admin', authAdminRoutes);
+app.use('/users', userRoutes);
+app.use('/admins', adminUserRoutes);
 
-app.listen(PORT, () => { console.log(`server running on port ${PORT}`) })
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});

@@ -1,20 +1,17 @@
 const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const {S3Client} = require("@aws-sdk/client-s3");
+const multer = require("multer");
+const multerS3 = require("multer-s3");
+const router = express.Router();
 
-const app = express();
-const port = 8080;
-
-const regionName = 'ap-southeast-2'
-const bucketName = 'goedang-futsal-bucket'
+const regionName = process.env.AMAZON_S3_REGION_NAME
+const bucketName = process.env.AMAZON_S3_BUCKET_NAME
 
 const s3Client = new S3Client({
     region: regionName, // Replace with your preferred region
     credentials: {
-        accessKeyId: 'AKIA5LO4GY42ISQ2UOVG',
-        secretAccessKey: 'XXPJA8BvibMRiTJKcNRLyBnuGJuFhMveNpwF0SYq',
+        accessKeyId: process.env.AMAZON_S3_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AMAZON_S3_SECRET_ACCESS_KEY,
     },
 });
 
@@ -28,16 +25,7 @@ const upload = multer({
     }),
 });
 
-// ✅ Enable CORS for localhost:3000
-app.use(cors({
-    origin: 'http://localhost:3000'
-}));
-
-app.get('/health', (req, res) => {
-    res.json({ message: 'api connected' });
-});
-
-app.get('/image/:filename', (req, res) => {
+router.get('/image/:filename', (req, res) => {
     const { filename } = req.params;
 
     // Construct the public URL manually (works if bucket is public)
@@ -46,14 +34,11 @@ app.get('/image/:filename', (req, res) => {
     res.json({ imageUrl: url });
 });
 
-app.post('/upload', upload.single('image'), (req, res) => {
+router.post('/upload', upload.single('image'), (req, res) => {
     res.json({
         message: 'Image uploaded successfully',
         fileUrl: req.file.location,
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
-
+module.exports = router;
