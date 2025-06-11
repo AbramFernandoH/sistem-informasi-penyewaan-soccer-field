@@ -10,6 +10,8 @@ const authRoutes = require('./routes/auth');
 const authAdminRoutes = require('./routes/authAdmin');
 const userRoutes = require('./routes/user');
 const adminUserRoutes = require('./routes/admin');
+const assetRoutes = require('./routes/asset');
+const fieldRoutes = require('./routes/field');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -54,6 +56,8 @@ app.use('/auth', authRoutes);
 app.use('/auth-admin', authAdminRoutes);
 app.use('/users', userRoutes);
 app.use('/admins', adminUserRoutes);
+app.use('/asset', assetRoutes);
+app.use('/fields', fieldRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

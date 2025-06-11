@@ -2,6 +2,7 @@ const express = require('express');
 const {S3Client} = require("@aws-sdk/client-s3");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
+const { requireAuth } = require("../middleware");
 const router = express.Router();
 
 const regionName = process.env.AMAZON_S3_REGION_NAME
@@ -25,7 +26,7 @@ const upload = multer({
     }),
 });
 
-router.get('/image/:filename', (req, res) => {
+router.get('/:filename/image', (req, res) => {
     const { filename } = req.params;
 
     // Construct the public URL manually (works if bucket is public)
@@ -34,7 +35,7 @@ router.get('/image/:filename', (req, res) => {
     res.json({ imageUrl: url });
 });
 
-router.post('/upload', upload.single('image'), (req, res) => {
+router.post('/upload', requireAuth('cms'), upload.single('image'), (req, res) => {
     res.json({
         message: 'Image uploaded successfully',
         fileUrl: req.file.location,
