@@ -1,9 +1,9 @@
 require('dotenv').config();
-const ExcelJS = require("exceljs");
+// const ExcelJS = require("exceljs");
 const express = require('express');
 const router = express.Router();
 const { DateTime } = require('luxon');
-const User = require('../model/user');
+const User = require('../models/user');
 const { isLoggedIn, isAdmin } = require('../middleware');
 
 router.route('/')
@@ -36,51 +36,51 @@ router.route('/')
         }
     })
 
-router.route('/export')
-    .post(isLoggedIn, isAdmin, async (req, res) => {
-        try {
-            const query = {
-                admin: false
-            }
-
-            // Fetch User data
-            const listUser = await User.find(query);
-
-            // Create a new workbook
-            const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Warga');
-
-            // Define worksheet headers
-            worksheet.columns = [
-                { header: "NIK", key: "IDNumber", width: 30 },
-                { header: "Nama KK", key: "headOfFamilyName", width: 30 },
-                { header: "Username", key: "username", width: 20 },
-                { header: "Alamat", key: "address", width: 25 },
-            ];
-
-            // Add data to the worksheet
-            listUser.forEach(user => {
-                worksheet.addRow({
-                    IDNumber: String(user.IDNumber),
-                    headOfFamilyName: user.headOfFamilyName,
-                    username: user.username,
-                    address: user.address,
-                });
-            });
-
-            // Set up the response headers
-            res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            res.setHeader("Content-Disposition", `attachment; filename=list-warga-${DateTime.now().toUnixInteger()}.xlsx`);
-
-            // Write the workbook to the response object
-            await workbook.xlsx.write(res);
-            await res.end();
-
-            res.redirect('/user');
-        } catch (error) {
-            console.error('Error exporting list user to Excel:', error);
-        }
-    })
+// router.route('/export')
+//     .post(isLoggedIn, isAdmin, async (req, res) => {
+//         try {
+//             const query = {
+//                 admin: false
+//             }
+//
+//             // Fetch User data
+//             const listUser = await User.find(query);
+//
+//             // Create a new workbook
+//             const workbook = new ExcelJS.Workbook();
+//             const worksheet = workbook.addWorksheet('Warga');
+//
+//             // Define worksheet headers
+//             worksheet.columns = [
+//                 { header: "NIK", key: "IDNumber", width: 30 },
+//                 { header: "Nama KK", key: "headOfFamilyName", width: 30 },
+//                 { header: "Username", key: "username", width: 20 },
+//                 { header: "Alamat", key: "address", width: 25 },
+//             ];
+//
+//             // Add data to the worksheet
+//             listUser.forEach(user => {
+//                 worksheet.addRow({
+//                     IDNumber: String(user.IDNumber),
+//                     headOfFamilyName: user.headOfFamilyName,
+//                     username: user.username,
+//                     address: user.address,
+//                 });
+//             });
+//
+//             // Set up the response headers
+//             res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//             res.setHeader("Content-Disposition", `attachment; filename=list-warga-${DateTime.now().toUnixInteger()}.xlsx`);
+//
+//             // Write the workbook to the response object
+//             await workbook.xlsx.write(res);
+//             await res.end();
+//
+//             res.redirect('/user');
+//         } catch (error) {
+//             console.error('Error exporting list user to Excel:', error);
+//         }
+//     })
 
 router.route('/add')
     .get(isLoggedIn, isAdmin, async (req, res) => {

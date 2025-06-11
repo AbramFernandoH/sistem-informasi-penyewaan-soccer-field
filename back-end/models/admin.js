@@ -7,9 +7,14 @@ const AdminUserSchema = new Schema({
         type: String,
         required: true
     },
+    username: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
 });
-
-// adding username, hash and salt from original password
-AdminUserSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('AdminUser', AdminUserSchema);

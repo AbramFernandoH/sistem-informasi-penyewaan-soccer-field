@@ -1,142 +1,140 @@
-require('dotenv').config();
-const ExcelJS = require("exceljs");
 const express = require('express');
 const router = express.Router();
-const { DateTime } = require('luxon');
-const AdminUser = require('../model/admin');
-const { isLoggedIn, isAdmin } = require('../middleware');
+const AdminUser = require('../models/admin');
+const { requireAuth } = require('../middleware');
+const bcrypt = require("bcrypt");
 
-router.route('/')
-    .get(async (req, res) => {
-        try {
-            const { skip } = req.query
-            const currentSkip = skip ? Number(skip) : 0
-            const listUser = await AdminUser.find({}).limit(10).skip(currentSkip);
-            const totalUser = await AdminUser.countDocuments({});
-            const metadata = {
-                limit: 10,
-                skip: currentSkip,
-                count: totalUser,
-            };
+router.get('/', requireAuth('cms'), async (req, res) => {
+    try {
+        const { skip } = req.query
+        const currentSkip = skip ? Number(skip) : 0
+        const listUser = await AdminUser.find({}).limit(10).skip(currentSkip);
+        const totalUser = await AdminUser.countDocuments({});
+        const metadata = {
+            limit: 10,
+            skip: currentSkip,
+            count: totalUser,
+        };
 
-            return res.json({
-                code: 200,
-                success: true,
-                message: 'OK',
-                data: {
-                    items: listUser,
-                    metadata,
-                },
-            });
-        } catch {
-            return res.json({
-                code: 500,
+        return res.status(200).json({
+            code: 200,
+            success: true,
+            message: 'OK',
+            data: {
+                items: listUser,
+                metadata,
+            },
+        });
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get list user',
+        });
+    }
+})
+
+router.post('/add', requireAuth('cms'), async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const existing = await AdminUser.findOne({ username });
+
+        if (existing) {
+            res.status(400).json({
+                code: 400,
                 success: false,
-                message: 'Failed to get list user',
+                message: 'User already exists',
+                data: null,
+            });
+        } else {
+            const hashed = await bcrypt.hash(password, 10);
+            const admin = await AdminUser.create({ ...req.body, password: hashed });
+
+            res.status(200).json({
+                code: 200,
+                message: 'OK',
+                success: true,
+                data: admin,
             });
         }
-    })
+    } catch {
+        res.status(500).json({
+            code: 500,
+            message: 'Failed to create admin user',
+            success: false,
+        });
+    }
+})
 
-router.route('/export')
-    .post(isLoggedIn, isAdmin, async (req, res) => {
-        try {
-            const query = {
-                admin: false
+router.patch('/:username/edit', requireAuth('cms'), async (req, res) => {
+    try {
+        const { password, ...rest } = req.body;
+        const admin = await AdminUser.findOne({ username: req.params.username });
+
+        if (admin !== null) {
+            if (password && password.length > 0) {
+                admin.password = await bcrypt.hash(password, 10);
             }
 
-            // Fetch User data
-            const listUser = await AdminUser.find(query);
-
-            // Create a new workbook
-            const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Warga');
-
-            // Define worksheet headers
-            worksheet.columns = [
-                { header: "NIK", key: "IDNumber", width: 30 },
-                { header: "Nama KK", key: "headOfFamilyName", width: 30 },
-                { header: "Username", key: "username", width: 20 },
-                { header: "Alamat", key: "address", width: 25 },
-            ];
-
-            // Add data to the worksheet
-            listUser.forEach(user => {
-                worksheet.addRow({
-                    IDNumber: String(AdminUser.IDNumber),
-                    headOfFamilyName: AdminUser.headOfFamilyName,
-                    username: AdminUser.username,
-                    address: AdminUser.address,
-                });
+            admin.set({
+                ...admin,
+                ...rest,
             });
 
-            // Set up the response headers 
-            res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            res.setHeader("Content-Disposition", `attachment; filename=list-warga-${DateTime.now().toUnixInteger()}.xlsx`);
+            const data = await admin.save();
 
-            // Write the workbook to the response object 
-            await workbook.xlsx.write(res);
-            await res.end();
-
-            res.redirect('/user');
-        } catch (error) {
-            console.error('Error exporting list user to Excel:', error);
-        }
-    })
-
-router.route('/add')
-    .post(isLoggedIn, isAdmin, async (req, res) => {
-        try {
-            const { password } = req.body
-            const user = new AdminUser(req.body);
-            const data = await AdminUser.register(user, password);
-
-            res.json({
+            res.status(200).json({
                 code: 200,
                 message: 'OK',
                 success: true,
                 data,
             });
-        } catch {
-            res.json({
-                code: 500,
-                message: 'Failed to create admin user',
+        } else {
+            res.status(404).json({
+                code: 404,
+                message: 'Not found',
                 success: false,
+                data: null,
             });
         }
+    } catch (err) {
+        res.status(500).json({
+            code: 500,
+            message: 'Failed to edit admin user',
+            success: false,
+        });
+    }
+})
 
-    })
+router.delete('/:username', requireAuth('cms'), async (req, res) => {
+    try {
+        const admin = await AdminUser.findOne({ username: req.params.username });
 
-router.route('/edit/:userId')
-    .get(isLoggedIn, isAdmin, async (req, res) => {
-        const editedUser = await AdminUser.findById(req.params.userId)
-        res.render('user/edit-user', { headTitle: 'Ubah Warga', editedUser });
-    })
-    .patch(isLoggedIn, isAdmin, async (req, res) => {
-        try {
-            const editedUser = await AdminUser.findById(req.params.userId);
-            const { password, ...rest } = req.body;
+        if (admin !== null) {
+            await AdminUser.deleteOne({ _id: admin._id });
 
-            if (password.length > 0) {
-                await editedUser.setPassword(password);
-                await editedUser.save();
-            }
-
-            await AdminUser.updateOne({ _id: req.params.userId }, rest);
-            res.redirect('/user');
-        } catch (e) {
-            res.redirect('/user');
+            res.status(200).json({
+                code: 200,
+                message: 'OK',
+                success: true,
+                data: null,
+            });
+        } else {
+            res.status(404).json({
+                code: 404,
+                message: 'Not found',
+                success: false,
+                data: null,
+            });
         }
-    })
-
-router.route('/delete/:userId')
-    .delete(isLoggedIn, isAdmin, async (req, res) => {
-        try {
-            await AdminUser.deleteOne({ _id: req.params.userId });
-            res.redirect('/user');
-        } catch (e) {
-            res.redirect('/user');
-        }
-    })
+    } catch (e) {
+        res.status(500).json({
+            code: 500,
+            message: 'Failed to delete admin user',
+            success: false,
+        });
+    }
+})
 
 module.exports = router;
 
