@@ -2,12 +2,12 @@
 import NextImg from 'next/image'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import {Admin, BaseResponse} from '@/utils/type'
+import { Admin, BaseResponse } from '@/utils/type'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { ENV, COOKIES } from '@/utils/constants'
 import { setCookie } from '@/utils/helper'
-import {adminProfileStore} from "@/stores/adminProfile";
+import { adminProfileStore } from '@/stores/adminProfile'
 
 type LoginResponse = BaseResponse<{
   accessToken: string

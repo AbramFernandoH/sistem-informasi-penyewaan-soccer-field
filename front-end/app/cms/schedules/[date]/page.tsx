@@ -9,15 +9,9 @@ import { format } from 'date-fns'
 import { id as indonesianLocale } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { fetchWithAuth } from '@/utils/helper'
-import { ListBaseResponse, Field } from '@/utils/type'
+import { ListFieldRequest, ListFieldResponse } from '@/utils/type'
 import { ENV } from '@/utils/constants'
 import { ReactNode, useEffect, useState } from 'react'
-
-type ListFieldResponse = ListBaseResponse<Field>
-
-type ListFieldRequest = {
-  skip: number
-}
 
 export default function ScheduleFields() {
   const params = useParams()

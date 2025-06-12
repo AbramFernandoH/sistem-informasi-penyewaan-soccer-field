@@ -14,6 +14,8 @@ export type ListBaseResponse<I> = BaseResponse<{
   }
 }>
 
+// Field
+
 export type Field = {
   _id: string
   name: string
@@ -21,8 +23,28 @@ export type Field = {
   photo: string
 }
 
+export type ListFieldResponse = ListBaseResponse<Field>
+export type ListFieldRequest = {
+  skip: number
+}
+
+// Admin
+
 export type Admin = {
   _id: string
   fullName: string
   username: string
 }
+
+// Schedule
+
+export type Schedule = {
+  _id: string
+  field: string
+  date: string
+  timeSlots: number[]
+  reason: string
+}
+
+export type CreateScheduleRequest = Omit<Schedule, '_id'>
+export type CreateScheduleResponse = BaseResponse<Schedule>

@@ -1,4 +1,5 @@
-import React, { Dispatch, SetStateAction, useMemo } from 'react'
+'use client'
+import React, { Dispatch, SetStateAction } from 'react'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
 
 export type DropdownOption = {
@@ -11,32 +12,28 @@ type DropdownProps = {
   isOpen: boolean
   setIsOpen: Dispatch<SetStateAction<boolean>>
   options: DropdownOption[]
-  handleClickOption: (value: DropdownOption) => () => void
+  handleClickOption: (value: DropdownOption) => void
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ isOpen, setIsOpen, options, handleClickOption }) => {
-  const selectedValue = useMemo(() => {
-    const selected = options.filter((option) => option.selected)
-
-    if (selected.length > 0) {
-      return selected.map((option) => option.value).join(', ')
-    }
-
-    return ''
-  }, [...options.map((option) => option.selected)])
-
-  const changeIsOpen = (open: boolean) => () => {
-    setIsOpen(open)
-  }
+  const toggleDropdown = () => setIsOpen(!isOpen)
+  const closeDropdown = () => setIsOpen(false)
 
   return (
     <div className='relative inline-block w-full'>
       <button
         type='button'
         className='flex items-center justify-between w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-left text-gray-700 hover:bg-gray-50'
-        onClick={changeIsOpen(!isOpen)}
+        onClick={toggleDropdown}
       >
-        <span>{selectedValue}</span>
+        <span className='truncate'>
+          {options.filter((option) => option.selected).length > 0
+            ? options
+                .filter((option) => option.selected)
+                .map((opt) => opt.value)
+                .join(', ')
+            : 'Select...'}
+        </span>
 
         {isOpen ? (
           <ChevronUpIcon className='size-5 font-semibold' />
@@ -51,21 +48,23 @@ const Dropdown: React.FC<DropdownProps> = ({ isOpen, setIsOpen, options, handleC
             {options.map((option) => (
               <li
                 key={option.xid}
-                onClick={handleClickOption(option)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleClickOption(option)
+                }}
                 className={`cursor-pointer px-4 py-2 hover:bg-gray-100 ${
                   option.selected ? 'bg-blue-100 font-medium' : ''
                 }`}
               >
-                <div className='flex items-center space-x-2'>
-                  <span>{option.value}</span>
-                </div>
+                {option.value}
               </li>
             ))}
           </ul>
 
+          {/* Click-outside close area */}
           <div
-            className='bg-transparent fixed z-40 top-[144px] left-0 w-full h-full'
-            onClick={changeIsOpen(false)}
+            className='fixed inset-0 z-40'
+            onClick={closeDropdown}
           />
         </>
       )}

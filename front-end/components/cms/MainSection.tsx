@@ -1,9 +1,9 @@
 import { Dispatch, FC, ReactNode, SetStateAction } from 'react'
-import { Bars3Icon } from '@heroicons/react/24/outline'
+import { Bars3Icon, UserCircleIcon } from '@heroicons/react/24/outline'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import Breadcrumbs, { BreadcrumbData } from '@/components/cms/Breadcrumbs'
-import { adminProfileStore } from "@/stores/adminProfile";
+import { adminProfileStore } from '@/stores/adminProfile'
 
 type MainSectionProps = {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>
@@ -45,11 +45,7 @@ const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) 
             <MenuButton className='-m-1.5 flex items-center p-1.5'>
               <span className='sr-only'>Open user menu</span>
 
-              <img
-                src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-                alt='profile-picture'
-                className='size-8 rounded-full bg-gray-50'
-              />
+              <UserCircleIcon className='size-8' />
 
               <span className='hidden lg:flex lg:items-center'>
                 <span

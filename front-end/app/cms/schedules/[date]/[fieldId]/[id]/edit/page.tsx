@@ -87,7 +87,7 @@ export default function EditSchedule() {
     },
   ]
 
-  const handleChangeSelectedField = (newSelectedOption: DropdownOption) => () => {
+  const handleChangeSelectedField = (newSelectedOption: DropdownOption) => {
     const newOptions = fieldOptions.map((option) => ({ ...option, selected: false }))
     const selectedIndex = newOptions.findIndex((option) => option.xid === newSelectedOption.xid)
 

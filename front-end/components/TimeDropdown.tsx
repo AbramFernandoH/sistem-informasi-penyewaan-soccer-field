@@ -10,18 +10,18 @@ const TimeDropdown: FC<TimeDropdownProps> = ({ setSelectedTime }) => {
   const [openTimeDropdown, setOpenTimeDropdown] = useState(false)
   const [timeOptions, setTimeOptions] = useState<DropdownOption[]>(
     Array.from({ length: 15 }).map((_, idx) => ({
-      xid: `field-${idx + 1}`,
+      xid: String(idx),
       value: `${7 + idx < 10 ? '0' : ''}${7 + idx}:00 - ${8 + idx < 10 ? '0' : ''}${8 + idx}:00`,
       selected: idx === 0,
     }))
   )
 
-  const handleClickOption = (newSelectedOption: DropdownOption) => () => {
+  const handleClickOption = (newSelectedOption: DropdownOption) => {
     const newOptions = timeOptions
     const selectedIndex = newOptions.findIndex((option) => option.xid === newSelectedOption.xid)
 
     if (selectedIndex !== -1) {
-      newOptions.splice(selectedIndex, 1, { ...newSelectedOption, selected: true })
+      newOptions.splice(selectedIndex, 1, { ...newSelectedOption, selected: !newSelectedOption.selected })
 
       setTimeOptions(newOptions)
       setSelectedTime(newOptions.filter((option) => option.selected))

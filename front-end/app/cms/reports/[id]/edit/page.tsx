@@ -47,7 +47,7 @@ export default function EditReport() {
     { name: 'Ubah Laporan', path: '/', current: true },
   ]
 
-  const handleChangeSelectedField = (newSelectedOption: DropdownOption) => () => {
+  const handleChangeSelectedField = (newSelectedOption: DropdownOption) => {
     const newOptions = reportTypeOptions.map((option) => ({ ...option, selected: false }))
     const selectedIndex = newOptions.findIndex((option) => option.xid === newSelectedOption.xid)
 

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import {Admin} from "@/utils/type";
+import { Admin } from '@/utils/type'
 
 type AdminProfile = Admin | null
 
