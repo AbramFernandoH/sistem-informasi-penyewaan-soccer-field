@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
                 });
             }
         } else {
-            return res.json({
+            return res.status(401).json({
                 code: 401,
                 success: false,
                 message: 'Invalid credentials',
@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.put('/refresh', requireAuth('cms'), async (req, res) => {
+router.put('/refresh', async (req, res) => {
     const refreshToken = String(req.body.refreshToken).replace('Bearer ', '')
 
     if (refreshToken === 'undefined') {

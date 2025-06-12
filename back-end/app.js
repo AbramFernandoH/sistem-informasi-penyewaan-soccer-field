@@ -12,6 +12,7 @@ const userRoutes = require('./routes/user');
 const adminUserRoutes = require('./routes/admin');
 const assetRoutes = require('./routes/asset');
 const fieldRoutes = require('./routes/field');
+const scheduleRoutes = require('./routes/schedule');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -58,6 +59,7 @@ app.use('/users', userRoutes);
 app.use('/admins', adminUserRoutes);
 app.use('/asset', assetRoutes);
 app.use('/fields', fieldRoutes);
+app.use('/schedules', scheduleRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
