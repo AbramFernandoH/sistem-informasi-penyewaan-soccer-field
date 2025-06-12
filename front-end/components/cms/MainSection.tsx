@@ -3,6 +3,7 @@ import { Bars3Icon } from '@heroicons/react/24/outline'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import Breadcrumbs, { BreadcrumbData } from '@/components/cms/Breadcrumbs'
+import { adminProfileStore } from "@/stores/adminProfile";
 
 type MainSectionProps = {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>
@@ -12,6 +13,8 @@ type MainSectionProps = {
 
 const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) => {
   const userNavigation = [{ name: 'Sign out', href: '#' }]
+
+  const admin = adminProfileStore((state) => state.admin)
 
   return (
     <div className='lg:pl-72'>
@@ -53,7 +56,7 @@ const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) 
                   aria-hidden='true'
                   className='ml-4 text-sm/6 font-semibold text-gray-900'
                 >
-                  Tom Cook
+                  {admin?.fullName ?? ''}
                 </span>
                 <ChevronDownIcon
                   aria-hidden='true'

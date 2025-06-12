@@ -26,6 +26,7 @@ const Pagination: FC<PaginationProps> = ({ limit, total, currentPage, handleClic
         <button
           className='relative inline-flex items-center rounded-md bg-white px-3 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
           onClick={handleClickPrev}
+          disabled={currentPage === 1}
         >
           <ArrowLeftIcon className='size-4 text-gray-900' />
         </button>
@@ -37,6 +38,7 @@ const Pagination: FC<PaginationProps> = ({ limit, total, currentPage, handleClic
         <button
           className='relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
           onClick={handleClickNext}
+          disabled={currentPage * 10 + 10 > total}
         >
           <ArrowRightIcon className='size-4 text-gray-900' />
         </button>

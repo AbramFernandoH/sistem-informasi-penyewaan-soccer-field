@@ -1,5 +1,6 @@
 import { FC, ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'
 import NextImg from 'next/image'
+import Link from 'next/link'
 
 type SidebarDesktopProps = {
   navigation: {
@@ -44,7 +45,7 @@ const SidebarDesktop: FC<SidebarDesktopProps> = ({ navigation }) => {
               >
                 {navigation.map((item) => (
                   <li key={item.name}>
-                    <a
+                    <Link
                       href={item.href}
                       className={classNames(
                         item.current
@@ -61,7 +62,7 @@ const SidebarDesktop: FC<SidebarDesktopProps> = ({ navigation }) => {
                         )}
                       />
                       {item.name}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

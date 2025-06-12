@@ -1,12 +1,15 @@
 'use client'
 
-import React, { FC, ReactNode, useState } from 'react'
+import React, { FC, ReactNode, useEffect, useState } from 'react'
 import { CalendarIcon, ChartPieIcon, HomeIcon, UsersIcon, UserIcon } from '@heroicons/react/24/outline'
+import { Toaster } from 'react-hot-toast'
 import { BreadcrumbData } from '@/components/cms/Breadcrumbs'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import SidebarMobile from '@/components/cms/SidebarMobile'
 import SidebarDesktop from '@/components/cms/SidebarDesktop'
 import MainSection from '@/components/cms/MainSection'
+import { getCookie } from '@/utils/helper'
+import { COOKIES } from '@/utils/constants'
 
 type CMSLayoutProps = {
   pages?: BreadcrumbData[]
@@ -15,6 +18,7 @@ type CMSLayoutProps = {
 
 const CMSLayout: FC<CMSLayoutProps> = ({ children, pages }) => {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const navigation = [
@@ -25,8 +29,21 @@ const CMSLayout: FC<CMSLayoutProps> = ({ children, pages }) => {
     { name: 'Laporan', href: '/cms/reports', icon: ChartPieIcon, current: pathname.includes('/cms/reports') },
   ]
 
+  useEffect(() => {
+    if (pathname !== '/cms/login') {
+      const accessToken = getCookie(COOKIES.ADMIN_ACCESS_TOKEN)
+      const refreshToken = getCookie(COOKIES.ADMIN_REFRESH_TOKEN)
+
+      if (accessToken === null && refreshToken === null) {
+        router.push('/cms/login')
+      }
+    }
+  }, [pathname, router])
+
   return (
     <>
+      <Toaster />
+
       <SidebarMobile
         navigation={navigation}
         sidebarOpen={sidebarOpen}

@@ -7,9 +7,24 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id as indonesianLocale } from 'date-fns/locale'
+import { useQuery } from '@tanstack/react-query'
+import { fetchWithAuth } from '@/utils/helper'
+import { ListBaseResponse, Field } from '@/utils/type'
+import { ENV } from '@/utils/constants'
+import { ReactNode, useEffect, useState } from 'react'
 
-export default function Field() {
+type ListFieldResponse = ListBaseResponse<Field>
+
+type ListFieldRequest = {
+  skip: number
+}
+
+export default function ScheduleFields() {
   const params = useParams()
+
+  const [skip, setSkip] = useState(0)
+  const [page, setPage] = useState(1)
+  const [tableData, setTableData] = useState<(string | ReactNode)[][]>([])
 
   const breadcrumbsPages: BreadcrumbData[] = [
     { name: 'List Jadwal', path: '/cms/schedules', current: false },
@@ -17,44 +32,49 @@ export default function Field() {
   ]
   const tableHeaders = ['Nama Lapangan', 'Action']
 
-  const tableData = [
-    [
-      'Lapangan 1',
-      <Link
-        key={1}
-        href={`/cms/schedules/${params.date}/lapangan-1`}
-        className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <EyeIcon className='size-3' />
+  const { data, isSuccess } = useQuery<ListFieldRequest, unknown, ListFieldResponse>({
+    queryKey: ['schedule', skip],
+    queryFn: async () => {
+      const res = await fetchWithAuth('cms', `${ENV.API_URL}/fields?skip=${skip}`)
 
-        <span>Lihat Jadwal</span>
-      </Link>,
-    ],
-    [
-      'Lapangan 2',
-      <Link
-        key={2}
-        href={`/cms/schedules/${params.date}/lapangan-2`}
-        className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <EyeIcon className='size-3' />
+      if (!res.ok) {
+        const errorData = await res.json()
 
-        <span>Lihat Jadwal</span>
-      </Link>,
-    ],
-    [
-      'Lapangan 3',
-      <Link
-        key={3}
-        href={`/cms/schedules/${params.date}/lapangan-3`}
-        className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <EyeIcon className='size-3' />
+        throw new Error(errorData.message || 'Failed to fetch profile')
+      }
 
-        <span>Lihat Jadwal</span>
-      </Link>,
-    ],
-  ]
+      return res.json()
+    },
+  })
+
+  const handleClickPrev = () => {
+    setSkip(skip > 0 ? skip - 10 : 0)
+    setPage(page > 1 ? page - 1 : 1)
+  }
+
+  const handleClickNext = () => {
+    setSkip(skip + 10)
+    setPage(page + 1)
+  }
+
+  useEffect(() => {
+    if (isSuccess) {
+      setTableData(
+        data.data.items.map((item) => [
+          item.name,
+          <Link
+            key={3}
+            href={`/cms/schedules/${params.date}/${item._id}`}
+            className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+          >
+            <EyeIcon className='size-3' />
+
+            <span>Lihat Jadwal</span>
+          </Link>,
+        ])
+      )
+    }
+  }, [data?.data.items, isSuccess, params.date])
 
   return (
     <CMSLayout pages={breadcrumbsPages}>
@@ -63,6 +83,10 @@ export default function Field() {
         description='lihat jadwal perlapangan untuk tanggal yang dipilih'
         headers={tableHeaders}
         data={tableData}
+        totalData={data?.data.metadata.count ?? 0}
+        currentPage={page}
+        handleClickPrev={handleClickPrev}
+        handleClickNext={handleClickNext}
       />
     </CMSLayout>
   )

@@ -14,9 +14,23 @@ export type TableProps = {
     path: string
     text?: string
   }
+  totalData?: number
+  currentPage?: number
+  handleClickPrev?: () => void
+  handleClickNext?: () => void
 }
 
-const Table: FC<TableProps> = ({ title, description, addButton, headers, data }) => {
+const Table: FC<TableProps> = ({
+  title,
+  description,
+  addButton,
+  headers,
+  data,
+  currentPage = 1,
+  totalData = 0,
+  handleClickPrev = () => {},
+  handleClickNext = () => {},
+}) => {
   return (
     <>
       <div className='sm:flex sm:items-center'>
@@ -77,13 +91,15 @@ const Table: FC<TableProps> = ({ title, description, addButton, headers, data })
         </div>
       </div>
 
-      <Pagination
-        limit={10}
-        total={2}
-        currentPage={1}
-        handleClickPrev={() => {}}
-        handleClickNext={() => {}}
-      />
+      {totalData > 10 && (
+        <Pagination
+          limit={10}
+          total={totalData}
+          currentPage={currentPage}
+          handleClickPrev={handleClickPrev}
+          handleClickNext={handleClickNext}
+        />
+      )}
     </>
   )
 }
