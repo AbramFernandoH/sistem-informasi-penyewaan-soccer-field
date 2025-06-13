@@ -22,6 +22,11 @@ export const getCookie = (name: string): string | null => {
   return null
 }
 
+// delete a cookie
+export const deleteCookie = (name: string) => {
+  document.cookie = `${name}=; Max-Age=0; path=/;`
+}
+
 let isRefreshing = false
 
 type RefreshTokenResponse = BaseResponse<{

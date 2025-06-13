@@ -34,7 +34,7 @@ export default function ScheduleFields() {
       if (!res.ok) {
         const errorData = await res.json()
 
-        throw new Error(errorData.message || 'Failed to fetch profile')
+        throw new Error(errorData.message || 'Failed to get schedule')
       }
 
       return res.json()

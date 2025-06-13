@@ -4,6 +4,11 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import Breadcrumbs, { BreadcrumbData } from '@/components/cms/Breadcrumbs'
 import { adminProfileStore } from '@/stores/adminProfile'
+import { COOKIES, ENV } from '@/utils/constants'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { deleteCookie, fetchWithAuth } from '@/utils/helper'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 type MainSectionProps = {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>
@@ -12,9 +17,45 @@ type MainSectionProps = {
 }
 
 const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) => {
-  const userNavigation = [{ name: 'Sign out', href: '#' }]
-
+  const router = useRouter()
+  const queryClient = useQueryClient()
   const admin = adminProfileStore((state) => state.admin)
+
+  const { isPending, isSuccess, mutate } = useMutation({
+    mutationFn: async () => {
+      const response = await fetchWithAuth('cms', `${ENV.API_URL}/auth-admin/logout`, {
+        method: 'DELETE',
+      })
+
+      const json = await response.json()
+
+      if (!response.ok) {
+        // Attach the JSON error message if needed
+        throw new Error(json.message || 'Login failed')
+      }
+
+      return json
+    },
+    onSuccess: async () => {
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ['cms-auth'] })
+
+      toast.success('Logout berhasil')
+
+      // Set tokens
+      deleteCookie(COOKIES.ADMIN_ACCESS_TOKEN)
+      deleteCookie(COOKIES.ADMIN_REFRESH_TOKEN)
+
+      router.push('/cms/login')
+    },
+    onError: () => {
+      toast.error('Gagal logout')
+    },
+  })
+
+  const handleClickLogout = async () => {
+    mutate()
+  }
 
   return (
     <div className='lg:pl-72'>
@@ -60,20 +101,21 @@ const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) 
                 />
               </span>
             </MenuButton>
+
             <MenuItems
               transition
               className='absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in'
             >
-              {userNavigation.map((item) => (
-                <MenuItem key={item.name}>
-                  <a
-                    href={item.href}
-                    className='block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none'
-                  >
-                    {item.name}
-                  </a>
-                </MenuItem>
-              ))}
+              <MenuItem>
+                <button
+                  type='button'
+                  onClick={handleClickLogout}
+                  disabled={isPending || isSuccess}
+                  className='w-full text-left block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none'
+                >
+                  Logout
+                </button>
+              </MenuItem>
             </MenuItems>
           </Menu>
         </div>
