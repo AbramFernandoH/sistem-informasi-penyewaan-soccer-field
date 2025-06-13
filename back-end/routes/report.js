@@ -1,26 +1,26 @@
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
-const Schedule = require('../models/schedule');
+const Report = require('../models/report');
 const { requireAuth} = require('../middleware');
 
-router.get('/', async (req, res) => {
+router.get('/', requireAuth('cms'), async (req, res) => {
     try {
         const { skip } = req.query
         const currentSkip = skip ? Number(skip) : 0
-        const listSchedule = await Schedule.find({}).limit(10).skip(currentSkip);
-        const totalSchedule = await Schedule.countDocuments({});
+        const listReport = await Report.find({}).limit(10).skip(currentSkip);
+        const totalReport = await Report.countDocuments({});
 
         return res.status(200).json({
             code: 200,
             success: true,
             message: 'OK',
             data: {
-                items: listSchedule,
+                items: listReport,
                 metadata: {
                     limit: 10,
                     skip: currentSkip,
-                    count: totalSchedule,
+                    count: totalReport,
                 },
             },
         });
@@ -28,15 +28,15 @@ router.get('/', async (req, res) => {
         return res.status(500).json({
             code: 500,
             success: false,
-            message: 'Failed to get list schedule',
+            message: 'Failed to get list report',
             data: null,
         });
     }
 })
 
-router.post('/add', async (req, res) => {
+router.post('/add', requireAuth('cms'), async (req, res) => {
     try {
-        const data = await Schedule.create(req.body);
+        const data = await Report.create(req.body);
 
         return res.status(200).json({
             code: 200,
@@ -48,23 +48,23 @@ router.post('/add', async (req, res) => {
         return res.status(500).json({
             code: 500,
             success: false,
-            message: 'Failed to create schedule',
+            message: 'Failed to create Report',
             data: null,
         });
     }
 })
 
-router.patch('/:scheduleId/edit', requireAuth('cms'), async (req, res) => {
+router.patch('/:reportId/edit', requireAuth('cms'), async (req, res) => {
     try {
-        const editedSchedule = await Schedule.findById(req.params.scheduleId);
+        const editedReport = await Report.findById(req.params.reportId);
 
-        if (editedSchedule !== null) {
-            editedSchedule.set({
-                ...editedSchedule,
+        if (editedReport !== null) {
+            editedReport.set({
+                ...editedReport,
                 ...req.body,
             });
 
-            const data = await editedSchedule.save();
+            const data = await editedReport.save();
 
             return res.status(200).json({
                 code: 200,
@@ -84,18 +84,18 @@ router.patch('/:scheduleId/edit', requireAuth('cms'), async (req, res) => {
         return res.status(500).json({
             code: 500,
             success: false,
-            message: 'Failed to edit schedule',
+            message: 'Failed to edit Report',
             data: null,
         });
     }
 })
 
-router.delete('/:scheduleId', requireAuth('cms'), async (req, res) => {
+router.delete('/:reportId', requireAuth('cms'), async (req, res) => {
     try {
-        const schedule = await Schedule.findById(req.params.scheduleId);
+        const report = await Report.findById(req.params.reportId);
 
-        if (schedule !== null) {
-            await Schedule.deleteOne({ _id: schedule._id });
+        if (report !== null) {
+            await Report.deleteOne({ _id: report._id });
 
             res.status(200).json({
                 code: 200,
@@ -115,7 +115,7 @@ router.delete('/:scheduleId', requireAuth('cms'), async (req, res) => {
         return res.status(500).json({
             code: 500,
             success: false,
-            message: 'Failed to delete schedule',
+            message: 'Failed to delete report',
             data: null,
         });
     }
