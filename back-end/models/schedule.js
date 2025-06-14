@@ -21,6 +21,11 @@ const ScheduleSchema = new Schema({
         type: String,
         required: true,
     },
+    booking: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Booking',
+        default: null,
+    }
 });
 
 module.exports = mongoose.model('Schedule', ScheduleSchema);
