@@ -7,15 +7,20 @@ const ReportSchema = new Schema({
         required: true,
     },
     type: {
-        type: Number,
-        min: 1,
-        max: 2,
+        type: String,
+        enum: ['income', 'expense'],
+        default: 'income',
         required: true,
     },
     totalPrice: {
         type: Number,
         required: true,
     },
+    booking: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Booking',
+        default: null,
+    }
 });
 
 module.exports = mongoose.model('Report', ReportSchema);

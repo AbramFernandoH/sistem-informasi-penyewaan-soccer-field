@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const BookingSchema = new mongoose.Schema({
-    orderId: {
-        type: String,
-        required: true,
-        unique: true
-    },
     name: {
         type: String,
         required: true
@@ -32,19 +27,25 @@ const BookingSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    snapToken: {
-        type: String,
-        required: true
-    },
     status: {
         type: String,
-        enum: ['pending', 'success', 'failure'],
+        enum: ['pending', 'half_paid', 'fully_paid', 'failure'],
         default: 'pending',
     },
     field: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Field',
         required: true,
+    },
+    payments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Payment'
+    }],
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false,
+        default: null,
     },
 }, { timestamps: true });
 
