@@ -4,6 +4,8 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
 const cookieParser = require("cookie-parser");
+const cron = require('node-cron');
+const cleanupPendingBookings = require('./jobs/cleanupPendingBookings');
 
 // routes
 const authRoutes = require('./routes/auth');
@@ -15,6 +17,7 @@ const fieldRoutes = require('./routes/field');
 const scheduleRoutes = require('./routes/schedule');
 const reportRoutes = require('./routes/report');
 const bookingRoutes = require('./routes/booking');
+const paymentRoutes = require('./routes/payment');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -64,6 +67,13 @@ app.use('/fields', fieldRoutes);
 app.use('/schedules', scheduleRoutes);
 app.use('/reports', reportRoutes);
 app.use('/bookings', bookingRoutes);
+app.use('/payments', paymentRoutes);
+
+// Run at minute 0 of every hour
+cron.schedule('0 * * * *', async () => {
+    console.log('⏰ Running cleanupPendingBookings job every hour...');
+    await cleanupPendingBookings();
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
