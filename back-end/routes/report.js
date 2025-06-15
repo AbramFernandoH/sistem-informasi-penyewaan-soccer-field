@@ -97,7 +97,7 @@ router.delete('/:reportId', requireAuth('cms'), async (req, res) => {
         if (report !== null) {
             await Report.deleteOne({ _id: report._id });
 
-            res.status(200).json({
+            return res.status(200).json({
                 code: 200,
                 message: 'OK',
                 success: true,

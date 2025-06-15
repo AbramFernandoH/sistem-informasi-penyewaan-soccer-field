@@ -111,7 +111,7 @@ router.post('/add-registered-first-transaction', requireAuth('pwa'), async (req,
         newBooking.payments.push(firstPayment._id);
         await newBooking.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             code: 200,
             message: 'OK',
             success: true,
@@ -121,7 +121,7 @@ router.post('/add-registered-first-transaction', requireAuth('pwa'), async (req,
             },
         });
     } catch {
-        res.status(500).json({
+        return res.status(500).json({
             code: 500,
             success: true,
             message: 'Failed to create transaction',
@@ -180,7 +180,7 @@ router.post('/:bookingId/add-registered-second-transaction', requireAuth('cms'),
         booking.payments.push(secondPayment._id);
         await booking.save()
 
-        res.status(200).json({
+        return res.status(200).json({
             code: 200,
             message: 'OK',
             success: true,
@@ -190,7 +190,7 @@ router.post('/:bookingId/add-registered-second-transaction', requireAuth('cms'),
             },
         });
     } catch {
-        res.status(500).json({
+        return res.status(500).json({
             code: 500,
             success: true,
             message: 'Failed to add second transaction',
@@ -261,7 +261,7 @@ router.post('/add-guest-transaction', async (req, res) => {
         newBooking.payments.push(payment._id);
         await newBooking.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             code: 200,
             message: 'OK',
             success: true,
@@ -270,9 +270,8 @@ router.post('/add-guest-transaction', async (req, res) => {
                 redirect_url: transaction.redirect_url,
             },
         });
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({
+    } catch {
+        return res.status(500).json({
             code: 500,
             success: true,
             message: 'Failed to create transaction',

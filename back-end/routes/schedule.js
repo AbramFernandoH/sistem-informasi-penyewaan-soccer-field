@@ -97,7 +97,7 @@ router.delete('/:scheduleId', requireAuth('cms'), async (req, res) => {
         if (schedule !== null) {
             await Schedule.deleteOne({ _id: schedule._id });
 
-            res.status(200).json({
+            return res.status(200).json({
                 code: 200,
                 message: 'OK',
                 success: true,

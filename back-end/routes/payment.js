@@ -100,15 +100,14 @@ router.post('/:paymentId/refund', async (req, res) => {
 
         await Schedule.deleteOne({ booking: booking._id })
 
-        res.status(200).json({
+        return res.status(200).json({
             code: 200,
             success: true,
             message: 'OK',
             data: refundResponse,
         });
-    } catch (err) {
-        console.error('Refund error:', err);
-        res.status(500).json({ error: 'Failed to process refund', details: err.message });
+    } catch {
+        return res.status(500).json({ error: 'Failed to process refund', details: err.message });
     }
 });
 

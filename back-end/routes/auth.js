@@ -14,7 +14,7 @@ router.post(
             const existing = await User.findOne({ email });
 
             if (existing !== null) {
-                res.status(400).json({
+                return res.status(400).json({
                     code: 400,
                     success: false,
                     message: 'User already exists',
@@ -24,7 +24,7 @@ router.post(
                 const hashed = await bcrypt.hash(password, 10);
                 const user = await User.create({ ...req.body, password: hashed });
 
-                res.status(200).json({
+                return res.status(200).json({
                     code: 200,
                     success: true,
                     message: 'OK',
@@ -32,7 +32,7 @@ router.post(
                 });
             }
         } catch {
-            res.status(500).json({
+            return res.status(500).json({
                 code: 500,
                 success: false,
                 message: 'Failed to register',
@@ -81,7 +81,7 @@ router.post('/login', async (req, res) => {
             });
         }
     } catch {
-        res.status(500).json({
+        return res.status(500).json({
             code: 500,
             success: false,
             message: 'Failed to login',
@@ -106,7 +106,7 @@ router.put('/refresh', requireAuth('pwa'), async (req, res) => {
         const decoded = verifyRefreshToken(refreshToken);
         const newAccessToken = generateAccessToken({ id: decoded.id, role: 'pwa' });
 
-        res.status(200).json({
+        return res.status(200).json({
             code: 200,
             success: true,
             message: 'OK',
@@ -116,7 +116,7 @@ router.put('/refresh', requireAuth('pwa'), async (req, res) => {
             },
         });
     } catch {
-        res.status(403).json({
+        return res.status(403).json({
             code: 403,
             success: false,
             message: 'Invalid refresh token',
@@ -126,7 +126,7 @@ router.put('/refresh', requireAuth('pwa'), async (req, res) => {
 });
 
 router.delete('/logout', requireAuth('pwa'), (req, res) => {
-    res.status(200).json({
+    return res.status(200).json({
         code: 200,
         success: true,
         message: 'OK',

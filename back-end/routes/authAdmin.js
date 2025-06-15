@@ -18,7 +18,7 @@ router.post('/login', async (req, res) => {
                 const accessToken = generateAccessToken({ id: user._id, role: 'cms' });
                 const refreshToken = generateRefreshToken({ id: user._id, role: 'cms' });
 
-                res.status(200).json({
+                return res.status(200).json({
                     code: 200,
                     success: true,
                     message: 'OK',
@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
                     },
                 });
             } else {
-                res.status(401).json({
+                return res.status(401).json({
                     code: 401,
                     success: false,
                     message: 'Invalid credentials',
@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
             });
         }
     } catch {
-        res.status(500).json({
+        return res.status(500).json({
             code: 500,
             success: false,
             message: 'Failed to login',
@@ -70,7 +70,7 @@ router.put('/refresh', async (req, res) => {
         const decoded = verifyRefreshToken(refreshToken);
         const newAccessToken = generateAccessToken({ id: decoded.id, role: 'cms' });
 
-        res.status(200).json({
+        return res.status(200).json({
             code: 200,
             success: true,
             message: 'OK',
@@ -80,7 +80,7 @@ router.put('/refresh', async (req, res) => {
             },
         });
     } catch {
-        res.status(403).json({
+        return res.status(403).json({
             code: 403,
             success: false,
             message: 'Invalid refresh token',
@@ -90,7 +90,7 @@ router.put('/refresh', async (req, res) => {
 });
 
 router.delete('/logout', requireAuth('cms'), (req, res) => {
-    res.status(200).json({
+    return res.status(200).json({
         code: 200,
         success: true,
         message: 'OK',
