@@ -18,6 +18,7 @@ const scheduleRoutes = require('./routes/schedule');
 const reportRoutes = require('./routes/report');
 const bookingRoutes = require('./routes/booking');
 const paymentRoutes = require('./routes/payment');
+const cartRoutes = require('./routes/cart');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -68,6 +69,7 @@ app.use('/schedules', scheduleRoutes);
 app.use('/reports', reportRoutes);
 app.use('/bookings', bookingRoutes);
 app.use('/payments', paymentRoutes);
+app.use('/carts', cartRoutes);
 
 // Run at minute 0 of every hour
 cron.schedule('0 * * * *', async () => {
