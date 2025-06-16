@@ -10,25 +10,32 @@ router.post(
     '/register',
     async (req, res) => {
         try {
-            const { email, password } = req.body;
-            const existing = await User.findOne({ email });
+            const { email, telephoneNumber, password } = req.body;
+            const existingEmail = await User.findOne({ email });
+            const existingPhoneNumber = await User.findOne({ telephoneNumber });
 
-            if (existing !== null) {
+            if (existingEmail !== null || existingPhoneNumber !== null) {
                 return res.status(400).json({
                     code: 400,
                     success: false,
-                    message: 'User already exists',
+                    message: `${existingEmail !== null && existingPhoneNumber !== null ? 'Email and phone number' : existingEmail !== null ? 'Email' : 'Phone number'} already exists`,
                     data: null,
                 });
             } else {
                 const hashed = await bcrypt.hash(password, 10);
                 const user = await User.create({ ...req.body, password: hashed });
+                const data = {
+                    _id: data._id,
+                    email: data.email,
+                    fullName: data.fullName,
+                    telephoneNumber: data.telephoneNumber,
+                }
 
                 return res.status(200).json({
                     code: 200,
                     success: true,
                     message: 'OK',
-                    data: user,
+                    data,
                 });
             }
         } catch {
