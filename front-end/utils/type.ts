@@ -14,6 +14,15 @@ export type ListBaseResponse<I> = BaseResponse<{
   }
 }>
 
+// User
+
+export type User = {
+  _id: string
+  fullName: string
+  email: string
+  telephoneNumber: string
+}
+
 // Field
 
 export type Field = {

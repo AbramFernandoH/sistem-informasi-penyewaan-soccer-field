@@ -35,8 +35,8 @@ type RefreshTokenResponse = BaseResponse<{
 }>
 
 export async function fetchWithAuth(role: 'cms' | 'pwa', input: RequestInfo, init?: RequestInit): Promise<Response> {
-  const accessToken = getCookie(COOKIES.ADMIN_ACCESS_TOKEN)
-  const refreshToken = getCookie(COOKIES.ADMIN_REFRESH_TOKEN)
+  const accessToken = getCookie(role === 'cms' ? COOKIES.ADMIN_ACCESS_TOKEN : COOKIES.USER_ACCESS_TOKEN)
+  const refreshToken = getCookie(role === 'cms' ? COOKIES.ADMIN_REFRESH_TOKEN : COOKIES.USER_REFRESH_TOKEN)
 
   const response = await fetch(input, {
     ...init,
@@ -68,13 +68,13 @@ export async function fetchWithAuth(role: 'cms' | 'pwa', input: RequestInfo, ini
 
         const data: RefreshTokenResponse = await refreshResponse.json()
 
-        setCookie(COOKIES.ADMIN_ACCESS_TOKEN, data.data.accessToken, 1)
-        setCookie(COOKIES.ADMIN_REFRESH_TOKEN, data.data.refreshToken, 7)
+        setCookie(role === 'cms' ? COOKIES.ADMIN_ACCESS_TOKEN : COOKIES.USER_ACCESS_TOKEN, data.data.accessToken, 1)
+        setCookie(role === 'cms' ? COOKIES.ADMIN_REFRESH_TOKEN : COOKIES.USER_REFRESH_TOKEN, data.data.refreshToken, 7)
 
         isRefreshing = false
 
         // Retry original request with new access token
-        const newAccessToken = getCookie(COOKIES.ADMIN_ACCESS_TOKEN)
+        const newAccessToken = getCookie(role === 'cms' ? COOKIES.ADMIN_ACCESS_TOKEN : COOKIES.USER_ACCESS_TOKEN)
         return fetch(input, {
           ...init,
           headers: {

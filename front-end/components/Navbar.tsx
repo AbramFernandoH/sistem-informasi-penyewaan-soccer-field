@@ -1,12 +1,59 @@
 'use client'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import NextImg from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { userProfileStore } from '@/stores/userProfile'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { deleteCookie, fetchWithAuth } from '@/utils/helper'
+import { COOKIES, ENV } from '@/utils/constants'
+import toast from 'react-hot-toast'
 
 const Navbar = () => {
   const pathname = usePathname()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const { user, resetUserProfile } = userProfileStore((state) => state)
+
+  const { isPending, isSuccess, mutate } = useMutation({
+    mutationFn: async () => {
+      const response = await fetchWithAuth('pwa', `${ENV.API_URL}/auth/logout`, {
+        method: 'DELETE',
+      })
+
+      const json = await response.json()
+
+      if (!response.ok) {
+        // Attach the JSON error message if needed
+        throw new Error(json.message || 'Logout failed')
+      }
+
+      return json
+    },
+    onSuccess: async () => {
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ['pwa-auth'] })
+
+      toast.success('Logout berhasil')
+
+      // delete tokens
+      deleteCookie(COOKIES.USER_ACCESS_TOKEN)
+      deleteCookie(COOKIES.USER_REFRESH_TOKEN)
+
+      resetUserProfile()
+
+      router.push('/')
+    },
+    onError: () => {
+      toast.error('Gagal logout')
+    },
+  })
+
+  const handleClickLogout = async () => {
+    mutate()
+  }
 
   const links = [
     {
@@ -28,6 +75,17 @@ const Navbar = () => {
     },
   ]
 
+  const authLinks = [
+    {
+      url: '/login',
+      name: 'Login',
+    },
+    {
+      url: '/register',
+      name: 'Register',
+    },
+  ]
+
   return (
     <Disclosure
       as='nav'
@@ -35,7 +93,7 @@ const Navbar = () => {
     >
       <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
         <div className='relative flex h-16 justify-between'>
-          <div className='absolute inset-y-0 left-0 flex items-center sm:hidden'>
+          <div className='absolute inset-y-0 left-0 flex items-center md:hidden'>
             {/* Mobile menu button */}
             <DisclosureButton className='group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500'>
               <span className='absolute -inset-0.5' />
@@ -54,7 +112,7 @@ const Navbar = () => {
             </DisclosureButton>
           </div>
 
-          <div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
+          <div className='flex flex-1 items-center justify-center md:items-stretch md:justify-start'>
             <Link
               href='/'
               className='flex items-center space-x-3 rtl:space-x-reverse shrink-0'
@@ -72,13 +130,13 @@ const Navbar = () => {
               </span>
             </Link>
 
-            <div className='hidden ml-10 sm:flex space-x-8'>
+            <div className='hidden ml-10 md:flex space-x-8'>
               {/* Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" */}
               {links.map((link) => (
                 <Link
                   key={link.url}
                   href={link.url}
-                  className={`inline-flex items-center border-b-2 ${pathname === link.url ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}`}
+                  className={`inline-flex items-center border-b-2 ${pathname === link.url ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-indigo-500 hover:text-gray-700'}`}
                 >
                   {link.name}
                 </Link>
@@ -86,46 +144,66 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
-            {/* Profile dropdown */}
-            <Menu
-              as='div'
-              className='relative ml-3'
-            >
-              <div>
-                <MenuButton className='relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'>
-                  <span className='absolute -inset-1.5' />
-                  <span className='sr-only'>Open user menu</span>
-                  <img
-                    alt=''
-                    src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-                    className='size-8 rounded-full'
-                  />
-                </MenuButton>
-              </div>
-
-              <MenuItems
-                transition
-                className='absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in'
+          {user !== null ? (
+            <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
+              {/* Profile dropdown */}
+              <Menu
+                as='div'
+                className='relative ml-3'
               >
-                <MenuItem>
-                  <a
-                    href='#'
-                    className='block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none'
-                  >
-                    Sign out
-                  </a>
-                </MenuItem>
-              </MenuItems>
-            </Menu>
-          </div>
+                <div>
+                  <MenuButton className='relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'>
+                    <span className='absolute -inset-1.5' />
+                    <span className='sr-only'>Open user menu</span>
+
+                    <div className='flex items-center space-x-3'>
+                      <p className='hidden lg:block'>{user.fullName.split(' ')[0] ?? user.fullName}</p>
+
+                      <UserCircleIcon className='size-8' />
+                    </div>
+                  </MenuButton>
+                </div>
+
+                <MenuItems
+                  transition
+                  className='absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in'
+                >
+                  <MenuItem>
+                    <button
+                      onClick={handleClickLogout}
+                      className='w-full text-left block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none'
+                      disabled={isPending || isSuccess}
+                    >
+                      Sign out
+                    </button>
+                  </MenuItem>
+                </MenuItems>
+              </Menu>
+            </div>
+          ) : (
+            <div className='hidden md:flex h-16 items-center justify-center sm:items-stretch sm:justify-start space-x-4'>
+              <Link
+                href='/login'
+                className={`inline-flex items-center border-b-2 ${pathname === '/login' ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-indigo-500 hover:text-gray-700'}`}
+              >
+                Login
+              </Link>
+
+              <Link
+                href='/register'
+                className={`inline-flex items-center border-b-2 ${pathname === '/register' ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-indigo-500 hover:text-gray-700'}`}
+              >
+                Register
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
       <DisclosurePanel className='lg:hidden'>
         <div className='space-y-1 pb-4 pt-2'>
           {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700" */}
-          {links.map((link) => (
+          {(user === null ? [...links, ...authLinks] : links).map((link) => (
             <DisclosureButton
               key={link.url}
               href={link.url}

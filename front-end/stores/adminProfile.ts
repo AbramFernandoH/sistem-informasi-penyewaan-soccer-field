@@ -7,6 +7,7 @@ type AdminProfile = Admin | null
 type AdminProfileStore = {
   admin: AdminProfile
   setAdminProfile: (data: AdminProfile) => void
+  resetAdminProfile: () => void
 }
 
 export const adminProfileStore = create<AdminProfileStore>()(
@@ -15,6 +16,9 @@ export const adminProfileStore = create<AdminProfileStore>()(
       admin: get()?.admin || null,
       setAdminProfile: (admin: AdminProfile) => {
         set((state) => ({ ...state, admin }))
+      },
+      resetAdminProfile: () => {
+        set((state) => ({ ...state, admin: null }))
       },
     }),
     {

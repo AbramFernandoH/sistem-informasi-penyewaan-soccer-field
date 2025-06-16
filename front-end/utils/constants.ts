@@ -5,6 +5,8 @@ export const ENV = {
 export const COOKIES = {
   ADMIN_ACCESS_TOKEN: 'admin-goedang-futsal-access-token',
   ADMIN_REFRESH_TOKEN: 'admin-goedang-futsal-refresh-token',
+  USER_ACCESS_TOKEN: 'user-goedang-futsal-access-token',
+  USER_REFRESH_TOKEN: 'user-goedang-futsal-refresh-token',
 }
 
 export const timeSlots = [

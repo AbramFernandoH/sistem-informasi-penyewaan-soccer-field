@@ -19,7 +19,7 @@ type MainSectionProps = {
 const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) => {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const admin = adminProfileStore((state) => state.admin)
+  const { admin, resetAdminProfile } = adminProfileStore((state) => state)
 
   const { isPending, isSuccess, mutate } = useMutation({
     mutationFn: async () => {
@@ -31,7 +31,7 @@ const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) 
 
       if (!response.ok) {
         // Attach the JSON error message if needed
-        throw new Error(json.message || 'Login failed')
+        throw new Error(json.message || 'Logout failed')
       }
 
       return json
@@ -42,9 +42,11 @@ const MainSection: FC<MainSectionProps> = ({ setSidebarOpen, pages, children }) 
 
       toast.success('Logout berhasil')
 
-      // Set tokens
+      // delete tokens
       deleteCookie(COOKIES.ADMIN_ACCESS_TOKEN)
       deleteCookie(COOKIES.ADMIN_REFRESH_TOKEN)
+
+      resetAdminProfile()
 
       router.push('/cms/login')
     },
