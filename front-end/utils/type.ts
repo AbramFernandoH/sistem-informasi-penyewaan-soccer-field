@@ -54,7 +54,14 @@ export type CreateAdminRequest = Omit<Admin, '_id'> & {
   password: string
   confirmPassword: string
 }
-export type CreateAdminResponse = BaseResponse<Admin>
+
+export type DetailAdminResponse = BaseResponse<Admin>
+
+export type EditAdminRequest = Omit<Admin, '_id'> &
+  Partial<{
+    password: string
+    confirmPassword: string
+  }>
 
 // Schedule
 

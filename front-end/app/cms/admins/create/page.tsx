@@ -5,7 +5,7 @@ import Header from '@/components/cms/Header'
 import { useForm } from 'react-hook-form'
 import FormInput from '@/components/cms/FormInput'
 import { useMutation } from '@tanstack/react-query'
-import { CreateAdminResponse, CreateAdminRequest } from '@/utils/type'
+import { DetailAdminResponse, CreateAdminRequest } from '@/utils/type'
 import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
 import { fetchWithAuth } from '@/utils/helper'
@@ -29,7 +29,7 @@ export default function CreateAdmin() {
     },
   })
 
-  const { isPending, isSuccess, mutate } = useMutation<CreateAdminResponse, unknown, CreateAdminRequest>({
+  const { isPending, isSuccess, mutate } = useMutation<DetailAdminResponse, unknown, CreateAdminRequest>({
     mutationFn: async (data) => {
       const response = await fetchWithAuth('cms', `${ENV.API_URL}/admins/add`, {
         method: 'POST',

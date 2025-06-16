@@ -66,7 +66,7 @@ export const Input: FC<any> = forwardRef<HTMLInputElement, InputProps>(
           type={type}
           aria-label={label}
           placeholder={placeholder}
-          className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 ${prepend && 'pl-10'} ${append && 'pr-10'} ${className}`}
+          className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 disabled:bg-gray-100 disabled:cursor-not-allowed ${prepend && 'pl-10'} ${append && 'pr-10'} ${className}`}
         />
 
         {append && (
