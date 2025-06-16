@@ -50,6 +50,12 @@ export type ListAdminRequest = {
   skip: number
 }
 
+export type CreateAdminRequest = Omit<Admin, '_id'> & {
+  password: string
+  confirmPassword: string
+}
+export type CreateAdminResponse = BaseResponse<Admin>
+
 // Schedule
 
 export type Schedule = {

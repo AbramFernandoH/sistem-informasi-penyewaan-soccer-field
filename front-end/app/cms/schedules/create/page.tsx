@@ -63,7 +63,7 @@ export default function CreateSchedule() {
     mutate: createSchedule,
   } = useMutation<CreateScheduleResponse, unknown, CreateScheduleRequest>({
     mutationFn: async (data) => {
-      const response = await fetch(`${ENV.API_URL}/schedules/add`, {
+      const response = await fetchWithAuth('cms', `${ENV.API_URL}/schedules/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export default function CreateSchedule() {
 
       if (!response.ok) {
         // Attach the JSON error message if needed
-        throw new Error(json.message || 'Login failed')
+        throw new Error(json.message || 'Create schedule failed')
       }
 
       return json
