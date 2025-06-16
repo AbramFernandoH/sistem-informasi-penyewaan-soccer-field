@@ -1,4 +1,3 @@
-import { ErrorMessage } from '@hookform/error-message'
 import React, { ChangeEvent, ReactNode } from 'react'
 import {
   Control,
@@ -18,7 +17,7 @@ export type FormInputProps<TFormValues extends FieldValues> = {
   control?: Control<TFormValues>
   label: string
   name: Path<TFormValues>
-  rules?: RegisterOptions
+  rules?: RegisterOptions<TFormValues>
   register?: UseFormRegister<TFormValues>
   errors?: Partial<FieldErrorsImpl<TFormValues>>
   withRequiredSign?: boolean
@@ -92,11 +91,7 @@ const FormInput = <TFormValues extends Record<string, unknown>>({
         />
       )}
 
-      <ErrorMessage
-        errors={errors}
-        name={name as any}
-        render={({ message }) => <FormError message={message} />}
-      />
+      {errors && errors[name] && errors[name].message && <FormError message={String(errors[name].message)} />}
     </div>
   )
 }
