@@ -34,6 +34,34 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     }
 })
 
+router.get('/:username', requireAuth('cms'), async (req, res) => {
+    try {
+        const admin = await AdminUser.findOne({ username: req.params.username });
+
+        if (admin !== null) {
+            return res.status(200).json({
+                code: 200,
+                success: true,
+                message: 'OK',
+                data: admin,
+            });
+        } else {
+            return res.status(404).json({
+                code: 404,
+                message: 'Not found',
+                success: false,
+                data: null,
+            });
+        }
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get detail admin',
+        });
+    }
+})
+
 router.post('/add', requireAuth('cms'), async (req, res) => {
     try {
         const { username, password } = req.body;
