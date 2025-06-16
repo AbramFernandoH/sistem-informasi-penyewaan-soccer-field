@@ -1,6 +1,6 @@
 'use client'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, UserCircleIcon, XMarkIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'
 import NextImg from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -67,11 +67,6 @@ const Navbar = () => {
     {
       url: '/fields',
       name: 'Lapangan Kami',
-    },
-    // TODO: change it to be profile sibling and add shopping cart icon
-    {
-      url: '/cart',
-      name: 'Keranjang',
     },
   ]
 
@@ -146,20 +141,39 @@ const Navbar = () => {
 
           {user !== null ? (
             <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
-              {/* Profile dropdown */}
               <Menu
                 as='div'
                 className='relative ml-3'
+              >
+                <div>
+                  <Link
+                    href='/cart'
+                    className='relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                  >
+                    <ShoppingCartIcon className='size-6 md:size-8' />
+
+                    {/* TODO: change hidden class to flex, when cart api is implemented */}
+                    <span className='absolute -top-2.5 -right-2.5 bg-red-600 text-white p-2 rounded-full h-6 w-6 hidden justify-center items-center'>
+                      9+
+                    </span>
+                  </Link>
+                </div>
+              </Menu>
+
+              {/* Profile dropdown */}
+              <Menu
+                as='div'
+                className='relative ml-4 md:ml-6'
               >
                 <div>
                   <MenuButton className='relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'>
                     <span className='absolute -inset-1.5' />
                     <span className='sr-only'>Open user menu</span>
 
-                    <div className='flex items-center space-x-3'>
+                    <div className='flex items-center space-x-2'>
                       <p className='hidden lg:block'>{user.fullName.split(' ')[0] ?? user.fullName}</p>
 
-                      <UserCircleIcon className='size-8' />
+                      <UserCircleIcon className='size-6 md:size-8' />
                     </div>
                   </MenuButton>
                 </div>
