@@ -1,7 +1,7 @@
 'use client'
 import ball from '@/public/pexels-rethaferguson-3621104.jpg'
 import NextImg from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BaseResponse, User } from '@/utils/type'
@@ -10,6 +10,8 @@ import toast from 'react-hot-toast'
 import { setCookie } from '@/utils/helper'
 import { useRouter } from 'next/navigation'
 import { userProfileStore } from '@/stores/userProfile'
+import Link from 'next/link'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
 type LoginResponse = BaseResponse<{
   accessToken: string
@@ -25,6 +27,8 @@ type LoginRequest = {
 export default function LoginUser() {
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  const [isHidePassword, setIsHidePassword] = useState(true)
 
   const setUserProfile = userProfileStore((state) => state.setUserProfile)
 
@@ -136,17 +140,28 @@ export default function LoginUser() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor='password'
-                      className='block text-sm/6 font-medium text-gray-900'
-                    >
-                      Password
-                    </label>
+                    <div className='flex items-center justify-between'>
+                      <label
+                        htmlFor='password'
+                        className='block text-sm/6 font-medium text-gray-900'
+                      >
+                        Password
+                      </label>
+
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setIsHidePassword(!isHidePassword)
+                        }}
+                      >
+                        {isHidePassword ? <EyeSlashIcon className='size-6' /> : <EyeIcon className='size-6' />}
+                      </button>
+                    </div>
 
                     <div className='mt-2 flex flex-col space-y-1'>
                       <input
                         id='password'
-                        type='password'
+                        type={isHidePassword ? 'password' : 'text'}
                         placeholder='Ketikan password anda'
                         className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
                         {...register('password', {
@@ -163,7 +178,7 @@ export default function LoginUser() {
                     </div>
                   </div>
 
-                  <div>
+                  <div className='flex flex-col space-y-3'>
                     <button
                       type='submit'
                       className='flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
@@ -171,6 +186,16 @@ export default function LoginUser() {
                     >
                       Masuk
                     </button>
+
+                    <span>
+                      Belum punya akun?{' '}
+                      <Link
+                        href='/register'
+                        className='text-indigo-600'
+                      >
+                        Registrasi akun
+                      </Link>
+                    </span>
                   </div>
                 </form>
               </div>
