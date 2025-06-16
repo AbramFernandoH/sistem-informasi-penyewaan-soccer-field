@@ -1,5 +1,6 @@
 import { COOKIES, ENV } from '@/utils/constants'
 import { BaseResponse } from '@/utils/type'
+import { KeyboardEvent } from 'react'
 
 // Set a cookie with a name, value, and expiration in days
 export const setCookie = (name: string, value: string, days: number) => {
@@ -34,6 +35,7 @@ type RefreshTokenResponse = BaseResponse<{
   refreshToken: string
 }>
 
+// fetch authentication that hit refresh if there is no access token
 export async function fetchWithAuth(role: 'cms' | 'pwa', input: RequestInfo, init?: RequestInit): Promise<Response> {
   const accessToken = getCookie(role === 'cms' ? COOKIES.ADMIN_ACCESS_TOKEN : COOKIES.USER_ACCESS_TOKEN)
   const refreshToken = getCookie(role === 'cms' ? COOKIES.ADMIN_REFRESH_TOKEN : COOKIES.USER_REFRESH_TOKEN)
@@ -91,4 +93,19 @@ export async function fetchWithAuth(role: 'cms' | 'pwa', input: RequestInfo, ini
   }
 
   return response
+}
+
+// only allow number to type
+export const allowOnlyNumbers = (e: KeyboardEvent<HTMLInputElement>) => {
+  const key = e.key
+
+  // Allow: Backspace, Tab, Arrow keys, Delete
+  const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete']
+
+  if (
+    !/^[0-9]$/.test(key) && // not a number
+    !allowedKeys.includes(key) // not a control key
+  ) {
+    e.preventDefault()
+  }
 }
