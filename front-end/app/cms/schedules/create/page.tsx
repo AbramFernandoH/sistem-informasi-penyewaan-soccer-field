@@ -43,6 +43,7 @@ export default function CreateSchedule() {
   const { data: dataListField, isSuccess: isSuccessListField } = useQuery<ListFieldRequest, unknown, ListFieldResponse>(
     {
       queryKey: ['schedule'],
+      refetchOnWindowFocus: false,
       queryFn: async () => {
         const res = await fetchWithAuth('cms', `${ENV.API_URL}/fields`)
 

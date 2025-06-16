@@ -28,6 +28,7 @@ export default function ScheduleFields() {
 
   const { data, isSuccess } = useQuery<ListFieldRequest, unknown, ListFieldResponse>({
     queryKey: ['schedule', skip],
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const res = await fetchWithAuth('cms', `${ENV.API_URL}/fields?skip=${skip}`)
 
