@@ -14,7 +14,7 @@ export default function Login() {
     const accessToken = getCookie(COOKIES.ADMIN_ACCESS_TOKEN)
     const refreshToken = getCookie(COOKIES.ADMIN_REFRESH_TOKEN)
 
-    if (accessToken !== null && refreshToken !== null) {
+    if (accessToken !== null || refreshToken !== null) {
       router.push('/cms/dashboard')
     }
   }, [pathname, router])
