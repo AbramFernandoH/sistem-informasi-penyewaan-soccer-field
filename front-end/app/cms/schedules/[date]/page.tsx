@@ -57,7 +57,7 @@ export default function ScheduleFields() {
         data.data.items.map((item) => [
           item.name,
           <Link
-            key={3}
+            key={item._id}
             href={`/cms/schedules/${params.date}/${item._id}`}
             className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
           >

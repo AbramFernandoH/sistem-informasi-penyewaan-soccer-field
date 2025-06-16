@@ -45,6 +45,11 @@ export type Admin = {
   username: string
 }
 
+export type ListAdminResponse = ListBaseResponse<Admin>
+export type ListAdminRequest = {
+  skip: number
+}
+
 // Schedule
 
 export type Schedule = {
