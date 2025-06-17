@@ -109,3 +109,5 @@ export const allowOnlyNumbers = (e: KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault()
   }
 }
+
+export const formatToRupiah = (amount: number) => 'Rp ' + amount.toLocaleString('id-ID')
