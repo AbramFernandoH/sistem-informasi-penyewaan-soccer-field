@@ -96,6 +96,9 @@ const ImageUploader = <TFormValues extends FieldValues = FieldValues>({
   useEffect(() => {
     if (fileUrl) {
       setImgUrl(fileUrl)
+
+      const splitFileUrl = fileUrl.split('.')
+      setFileExtension(splitFileUrl[splitFileUrl.length - 1])
     }
   }, [fileUrl])
 
