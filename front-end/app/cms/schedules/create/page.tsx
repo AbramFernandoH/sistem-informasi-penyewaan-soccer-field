@@ -66,9 +66,6 @@ export default function CreateSchedule() {
     mutationFn: async (data) => {
       const response = await fetchWithAuth('cms', `${ENV.API_URL}/schedules/add`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(data),
       })
 

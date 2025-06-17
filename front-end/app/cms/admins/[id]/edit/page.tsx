@@ -41,9 +41,6 @@ export default function EditAdmin() {
     mutationFn: async (data) => {
       const response = await fetchWithAuth('cms', `${ENV.API_URL}/admins/${params.id}/edit`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(data),
       })
 
