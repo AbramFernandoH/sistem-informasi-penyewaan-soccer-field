@@ -30,6 +30,19 @@ const PaymentSchema = new Schema({
         type: Date,
         required: true
     },
+    refundStatus: {
+        type: String,
+        enum: ['not_requested', 'refunded_manually'],
+        default: 'not_requested',
+    },
+    refundProof: {
+        type: String, // file path or URL
+        default: null
+    },
+    refundNote: {
+        type: String,
+        default: null
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Payment', PaymentSchema);

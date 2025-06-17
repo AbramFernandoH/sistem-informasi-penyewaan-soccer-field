@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Field = require('../models/field');
+const Booking = require('../models/booking');
+const Payment = require('../models/payment');
+const Report = require('../models/report');
+const Cart = require('../models/cart');
+const Schedule = require('../models/schedule');
 const { requireAuth } = require('../middleware');
 
 router.get('/', requireAuth('cms'), async (req, res) => {
@@ -97,26 +102,62 @@ router.patch('/:fieldId/edit', requireAuth('cms'), async (req, res) => {
 })
 
 router.delete('/:fieldId', requireAuth('cms'), async (req, res) => {
+    const fieldId = req.params.fieldId;
+
     try {
-        const field = await Field.findById(req.params.fieldId);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        if (field !== null) {
-            await Field.deleteOne({ _id: field._id });
+        const futureBookings = await Booking.find({
+            field: fieldId,
+            orderDate: { $gt: today }
+        });
 
-            return res.status(200).json({
-                code: 200,
-                message: 'OK',
-                success: true,
-                data: null,
-            });
-        } else {
-            return res.status(404).json({
-                code: 404,
-                message: 'Not found',
-                success: false,
-                data: null,
-            });
+        const futureBookingIds = futureBookings.map(b => b._id);
+
+        const futurePayments = await Payment.find({
+            booking: { $in: futureBookingIds }
+        });
+
+        // Update all successful payments to mark as manual refund required
+        for (const payment of futurePayments) {
+            if (payment.status === 'success') {
+                await Payment.findByIdAndUpdate(payment._id, {
+                    refundStatus: 'refunded_manually',
+                    refundNote: 'Field deleted — manual refund required'
+                });
+            }
         }
+
+        const paymentIdsToDelete = futurePayments.map(p => p._id);
+
+        // only delete failed/pending
+        await Payment.deleteMany({
+            _id: { $in: paymentIdsToDelete },
+            status: { $ne: 'success' }
+        });
+
+        await Report.deleteMany({ booking: { $in: futureBookingIds } });
+
+        await Schedule.deleteMany({
+            $or: [
+                { booking: { $in: futureBookingIds } },
+                { field: fieldId, date: { $gt: today } }
+            ]
+        });
+
+        await Booking.deleteMany({ _id: { $in: futureBookingIds } });
+
+        await Cart.deleteMany({ field: fieldId, orderDate: { $gt: today } });
+
+        await Field.findByIdAndDelete(fieldId);
+
+        return res.status(200).json({
+            code: 200,
+            message: 'OK',
+            success: true,
+            data: null,
+        });
     } catch {
         return res.status(500).json({
             code: 500,

@@ -69,24 +69,24 @@ router.get('/', requireAuth('cms'), async (req, res) => {
 
 router.post('/:paymentId/refund', async (req, res) => {
     const { paymentId } = req.params;
-    const { reason = 'Refunded by admin' } = req.body;
+    const { refundNote = 'Refunded by admin', refundProof } = req.body;
 
     try {
         const payment = await Payment.findById(paymentId).populate('booking');
         if (!payment) return res.status(404).json({ error: 'Payment not found' });
 
-        const refundResponse = await snap.transaction.refund(payment.orderId, {
-            refund_key: `refund-${payment.orderId}-${Date.now()}`,
-            amount: payment.amount,
-            reason
-        });
+        payment.set({
+            ...payment,
+            refundStatus: 'refunded_manually',
+            refundProof,
+            refundNote,
+        })
 
-        payment.status = 'failure';
         await payment.save();
 
         const booking = await Booking.findById(payment.booking._id).populate('payments');
-        const allFailed = booking.payments.every(p => p.toString() === paymentId || p.status === 'failure');
-        if (allFailed) {
+        const allRefundedManually = booking.payments.every(p => p.toString() === paymentId || p.refundStatus === 'refunded_manually');
+        if (allRefundedManually) {
             booking.status = 'failure';
             await booking.save();
         }
@@ -104,7 +104,7 @@ router.post('/:paymentId/refund', async (req, res) => {
             code: 200,
             success: true,
             message: 'OK',
-            data: refundResponse,
+            data: null,
         });
     } catch {
         return res.status(500).json({ error: 'Failed to process refund', details: err.message });
