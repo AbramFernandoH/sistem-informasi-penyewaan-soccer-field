@@ -63,7 +63,7 @@ app.use('/auth', authRoutes);
 app.use('/auth-admin', authAdminRoutes);
 app.use('/users', userRoutes);
 app.use('/admins', adminUserRoutes);
-app.use('/asset', assetRoutes);
+app.use('/assets', assetRoutes);
 app.use('/fields', fieldRoutes);
 app.use('/schedules', scheduleRoutes);
 app.use('/reports', reportRoutes);

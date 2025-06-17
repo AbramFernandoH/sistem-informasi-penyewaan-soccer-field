@@ -32,13 +32,24 @@ router.get('/:filename/image', (req, res) => {
     // Construct the public URL manually (works if bucket is public)
     const url = `https://${bucketName}.s3.${regionName}.amazonaws.com/${filename}`;
 
-    res.json({ imageUrl: url });
+    return res.status(200).json({
+        code: 200,
+        message: 'OK',
+        success: true,
+        data: {
+            imageUrl: url
+        },
+    });
 });
 
 router.post('/upload', requireAuth('cms'), upload.single('image'), (req, res) => {
-    res.json({
-        message: 'Image uploaded successfully',
-        fileUrl: req.file.location,
+    return res.status(200).json({
+        code: 200,
+        message: 'OK',
+        success: true,
+        data: {
+            imageUrl: req.file.location
+        },
     });
 });
 
