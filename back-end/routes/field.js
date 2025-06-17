@@ -38,6 +38,34 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     }
 })
 
+router.get('/:fieldId', requireAuth('cms'), async (req, res) => {
+    try {
+        const field = await Field.findById(req.params.fieldId);
+
+        if (field !== null) {
+            return res.status(200).json({
+                code: 200,
+                message: 'OK',
+                success: true,
+                data: field,
+            });
+        } else {
+            return res.status(404).json({
+                code: 404,
+                message: 'Not found',
+                success: false,
+                data: null,
+            });
+        }
+    } catch (err) {
+        return res.status(500).json({
+            code: 500,
+            message: 'Failed to get detail field',
+            success: false,
+        });
+    }
+})
+
 router.post('/add', requireAuth('cms'), async (req, res) => {
     try {
         const { name } = req.body;
