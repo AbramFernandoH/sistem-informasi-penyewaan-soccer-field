@@ -23,6 +23,7 @@ const upload = multer({
         key: function (req, file, cb) {
             cb(null, Date.now().toString() + '-' + file.originalname);
         },
+        contentType: multerS3.AUTO_CONTENT_TYPE,
     }),
 });
 
