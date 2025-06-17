@@ -1,6 +1,7 @@
 import { COOKIES, ENV } from '@/utils/constants'
 import { BaseResponse } from '@/utils/type'
 import { KeyboardEvent } from 'react'
+import { formatCurrency } from '@/utils/formatter'
 
 // Set a cookie with a name, value, and expiration in days
 export const setCookie = (name: string, value: string, days: number) => {
@@ -40,12 +41,14 @@ export async function fetchWithAuth(role: 'cms' | 'pwa', input: RequestInfo, ini
   const accessToken = getCookie(role === 'cms' ? COOKIES.ADMIN_ACCESS_TOKEN : COOKIES.USER_ACCESS_TOKEN)
   const refreshToken = getCookie(role === 'cms' ? COOKIES.ADMIN_REFRESH_TOKEN : COOKIES.USER_REFRESH_TOKEN)
 
+  const isFormData = init?.body instanceof FormData
+
   const response = await fetch(input, {
     ...init,
     headers: {
-      ...(init?.headers || {}),
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
+      ...(init?.headers || {}),
     },
   })
 
@@ -80,9 +83,9 @@ export async function fetchWithAuth(role: 'cms' | 'pwa', input: RequestInfo, ini
         return fetch(input, {
           ...init,
           headers: {
-            ...(init?.headers || {}),
+            ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
             Authorization: `Bearer ${newAccessToken}`,
-            'Content-Type': 'application/json',
+            ...(init?.headers || {}),
           },
         })
       }
@@ -111,3 +114,8 @@ export const allowOnlyNumbers = (e: KeyboardEvent<HTMLInputElement>) => {
 }
 
 export const formatToRupiah = (amount: number) => 'Rp ' + amount.toLocaleString('id-ID')
+
+export const cleanNumber = (value: string) => Number(String(value).replace(/[,.]/g, ''))
+
+export const addDotsToNumber = (value: string | number) =>
+  formatCurrency(Number(String(value).replace(/[,.]/g, '')), {})
