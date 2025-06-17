@@ -9,8 +9,15 @@ import FormLabel from '@/components/cms/FormLabel'
 import Dropdown, { DropdownOption } from '@/components/cms/Dropdown'
 import DatePicker from '@/components/DatePicker'
 import TimeDropdown from '@/components/TimeDropdown'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { CreateScheduleRequest, CreateScheduleResponse, ListFieldRequest, ListFieldResponse } from '@/utils/type'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  CreateScheduleRequest,
+  CreateScheduleResponse,
+  ListFieldRequest,
+  ListFieldResponse,
+  ListScheduleRequest,
+  ListScheduleResponse,
+} from '@/utils/type'
 import { fetchWithAuth } from '@/utils/helper'
 import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
@@ -18,9 +25,12 @@ import { useRouter } from 'next/navigation'
 
 export default function CreateSchedule() {
   const router = useRouter()
-  const [selectedDate, setSelectedDate] = useState('')
+  const queryClient = useQueryClient()
+
   const [openFieldDropdown, setOpenFieldDropdown] = useState(false)
   const [fieldOptions, setFieldOptions] = useState<DropdownOption[]>([])
+  const [timeOptions, setTimeOptions] = useState<DropdownOption[]>([])
+  const [resetTime, setResetTime] = useState(false)
 
   const {
     handleSubmit,
@@ -30,6 +40,7 @@ export default function CreateSchedule() {
     setError,
     clearErrors,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<CreateScheduleRequest>({
     defaultValues: {
@@ -39,10 +50,11 @@ export default function CreateSchedule() {
       timeSlots: [0],
     },
   })
+  const [date, field] = watch(['date', 'field'])
 
   const { data: dataListField, isSuccess: isSuccessListField } = useQuery<ListFieldRequest, unknown, ListFieldResponse>(
     {
-      queryKey: ['schedule'],
+      queryKey: ['field'],
       refetchOnWindowFocus: false,
       queryFn: async () => {
         const res = await fetchWithAuth('cms', `${ENV.API_URL}/fields`)
@@ -50,13 +62,34 @@ export default function CreateSchedule() {
         if (!res.ok) {
           const errorData = await res.json()
 
-          throw new Error(errorData.message || 'Failed to fetch profile')
+          throw new Error(errorData.message || 'Failed to get list field')
         }
 
         return res.json()
       },
     }
   )
+
+  const { data: dataListSchedule, isSuccess: isSuccessListSchedule } = useQuery<
+    ListScheduleRequest,
+    unknown,
+    ListScheduleResponse
+  >({
+    queryKey: ['schedule', date, field],
+    refetchOnWindowFocus: false,
+    enabled: date.length > 0 && field.length > 0,
+    queryFn: async () => {
+      const res = await fetchWithAuth('cms', `${ENV.API_URL}/schedules?date=${date}&fieldId=${field}`)
+
+      if (!res.ok) {
+        const errorData = await res.json()
+
+        throw new Error(errorData.message || 'Failed to get list schedule')
+      }
+
+      return res.json()
+    },
+  })
 
   const {
     isPending: isPendingCreateSchedule,
@@ -78,7 +111,9 @@ export default function CreateSchedule() {
 
       return json
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['schedule'] })
+
       toast.success('Jadwal berhasil ditambahkan')
 
       router.push('/cms/schedules')
@@ -97,6 +132,10 @@ export default function CreateSchedule() {
     const newOptions = fieldOptions.map((option) => ({ ...option, selected: false }))
     const selectedIndex = newOptions.findIndex((option) => option.xid === newSelectedOption.xid)
 
+    setValue('date', '')
+    setValue('timeSlots', [0])
+    setResetTime(!resetTime)
+
     if (selectedIndex !== -1) {
       const newData = { ...newSelectedOption, selected: true }
       newOptions.splice(selectedIndex, 1, newData)
@@ -114,14 +153,14 @@ export default function CreateSchedule() {
 
     setValue(
       'timeSlots',
-      option.map((opt) => Number(opt.xid))
+      option.map((opt) => Number(String(opt.xid).slice(-2).replace('-', '')))
     )
   }
 
   const handleChangeDate = (date: string) => {
-    setSelectedDate(date)
-
     clearErrors('date')
+    setValue('timeSlots', [0])
+    setResetTime(!resetTime)
 
     setValue('date', date)
   }
@@ -166,7 +205,25 @@ export default function CreateSchedule() {
 
       setFieldOptions(options)
     }
-  }, [isSuccessListField, dataListField])
+  }, [isSuccessListField, dataListField, getValues, setValue])
+
+  useEffect(() => {
+    if (isSuccessListSchedule && dataListSchedule) {
+      const existsTimeSlots = dataListSchedule.data.items.flatMap((opt) => opt.timeSlots)
+      const selectedValue = Array.from({ length: 15 })
+        .map((_, idx) => idx)
+        .filter((val) => !existsTimeSlots.includes(val))
+
+      const options = Array.from({ length: 15 }).map((_, idx) => ({
+        xid: `${field}-${date}-${idx}`,
+        value: `${7 + idx < 10 ? '0' : ''}${7 + idx}:00 - ${8 + idx < 10 ? '0' : ''}${8 + idx}:00`,
+        selected: selectedValue.length > 0 ? idx === selectedValue[0] : false,
+        disabled: existsTimeSlots.includes(idx),
+      }))
+
+      setTimeOptions(options)
+    }
+  }, [isSuccessListSchedule, dataListSchedule, field, date])
 
   return (
     <CMSLayout pages={breadcrumbsPages}>
@@ -177,31 +234,19 @@ export default function CreateSchedule() {
 
       <form className='flex flex-col items-center space-y-6 mt-4 w-full'>
         <div className='flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-4 w-full'>
-          <div className='flex flex-col space-y-2 w-full'>
-            <DatePicker
-              label='Tanggal'
-              name='schedule-date'
-              value={selectedDate}
-              className='w-full'
-              min={new Date().toISOString().split('T')[0]}
-              onChange={handleChangeDate}
-            />
+          <FormInput
+            control={control}
+            register={register}
+            errors={errors}
+            id='reason'
+            name='reason'
+            type='text'
+            label='Alasan'
+            placeholder='Ketikan alasan lapangan ditutup sementara'
+            wrapperClassName='w-full'
+            className='h-10'
+          />
 
-            {errors && errors.date && errors.date.message && (
-              <p className='text-xs font-medium leading-[16px] text-red-500'>{errors.date.message}</p>
-            )}
-          </div>
-
-          <div className='flex flex-col space-y-2 w-full'>
-            <TimeDropdown setSelectedTime={handleClickTimeDropdown} />
-
-            {errors && errors.timeSlots && errors.timeSlots.message && (
-              <p className='text-xs font-medium leading-[16px] text-red-500'>{errors.timeSlots.message}</p>
-            )}
-          </div>
-        </div>
-
-        <div className='flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-4 w-full'>
           <div className='flex flex-col space-y-2 w-full'>
             <FormLabel
               label='Nama Lapangan'
@@ -215,24 +260,42 @@ export default function CreateSchedule() {
               handleClickOption={handleChangeSelectedField}
             />
           </div>
+        </div>
 
-          <FormInput
-            control={control}
-            register={register}
-            errors={errors}
-            id='reason'
-            name='reason'
-            type='text'
-            label='Alasan'
-            placeholder='Ketikan alasan lapangan ditutup sementara'
-            wrapperClassName='w-full'
-            className='h-10'
-          />
+        <div className='flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-4 w-full'>
+          <div className='flex flex-col space-y-2 w-full lg:w-1/2'>
+            <DatePicker
+              label='Tanggal'
+              name='schedule-date'
+              value={date}
+              className='w-full'
+              min={new Date().toISOString().split('T')[0]}
+              onChange={handleChangeDate}
+              disabled={field.length === 0}
+            />
+
+            {errors && errors.date && errors.date.message && (
+              <p className='text-xs font-medium leading-[16px] text-red-500'>{errors.date.message}</p>
+            )}
+          </div>
+
+          <div className='flex flex-col space-y-2 w-full lg:w-1/2'>
+            <TimeDropdown
+              setSelectedTime={handleClickTimeDropdown}
+              disabled={date.length === 0 || field.length === 0}
+              resetSignal={resetTime}
+              options={timeOptions}
+            />
+
+            {errors && errors.timeSlots && errors.timeSlots.message && (
+              <p className='text-xs font-medium leading-[16px] text-red-500'>{errors.timeSlots.message}</p>
+            )}
+          </div>
         </div>
 
         <button
           type='button'
-          className='w-fit rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+          className='flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-300 disabled:cursor-not-allowed'
           disabled={isPendingCreateSchedule || isSuccessCreateSchedule}
           onClick={checkCreateSchedule}
         >

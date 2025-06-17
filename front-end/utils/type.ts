@@ -79,6 +79,13 @@ export type Schedule = {
   reason: string
 }
 
+export type ListScheduleResponse = ListBaseResponse<Schedule>
+export type ListScheduleRequest = Partial<{
+  skip: number
+  date: string
+  fieldId: string
+}>
+
 export type CreateScheduleRequest = Omit<Schedule, '_id'>
 export type CreateScheduleResponse = BaseResponse<Schedule>
 

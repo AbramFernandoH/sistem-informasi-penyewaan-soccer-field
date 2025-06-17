@@ -9,9 +9,19 @@ interface DatePickerProps {
   min?: string
   max?: string
   className?: string
+  disabled?: boolean
 }
 
-const DatePicker: FC<DatePickerProps> = ({ label, name, value, onChange, min, max, className = '' }) => {
+const DatePicker: FC<DatePickerProps> = ({
+  label,
+  name,
+  value,
+  onChange,
+  min,
+  max,
+  className = '',
+  disabled = false,
+}) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleClick = () => {
@@ -40,13 +50,14 @@ const DatePicker: FC<DatePickerProps> = ({ label, name, value, onChange, min, ma
           onChange={(e) => onChange(e.target.value)}
           min={min}
           max={max}
+          disabled={disabled}
           onFocus={handleClick}
           className='px-3 py-2 border rounded-md shadow-sm text-sm border-gray-300 focus:outline-2 focus:outline-indigo-600 focus:border-indigo-600 text-gray-800 h-10 w-full group-hover:bg-gray-50'
         />
 
         <FormLabel
           name={name}
-          className='absolute top-0 left-0 z-[1] w-full h-full opacity-0 group-hover:cursor-pointer'
+          className={`absolute top-0 left-0 z-[1] w-full h-full opacity-0 ${disabled ? 'group-hover:cursor-not-allowed' : 'group-hover:cursor-pointer'}`}
         />
       </div>
     </div>

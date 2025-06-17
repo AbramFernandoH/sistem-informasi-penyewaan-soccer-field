@@ -6,6 +6,7 @@ export type DropdownOption = {
   xid: string
   value: string
   selected: boolean
+  disabled?: boolean
 }
 
 type DropdownProps = {
@@ -13,9 +14,10 @@ type DropdownProps = {
   setIsOpen: Dispatch<SetStateAction<boolean>>
   options: DropdownOption[]
   handleClickOption: (value: DropdownOption) => void
+  disabled?: boolean
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ isOpen, setIsOpen, options, handleClickOption }) => {
+const Dropdown: React.FC<DropdownProps> = ({ isOpen, setIsOpen, options, handleClickOption, disabled = false }) => {
   const toggleDropdown = () => setIsOpen(!isOpen)
   const closeDropdown = () => setIsOpen(false)
 
@@ -23,10 +25,21 @@ const Dropdown: React.FC<DropdownProps> = ({ isOpen, setIsOpen, options, handleC
     <div className='relative inline-block w-full'>
       <button
         type='button'
-        className={`flex items-center justify-between w-full h-10 bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-left text-gray-700 hover:bg-gray-50 ${isOpen && 'border-indigo-600'}`}
+        className={`flex items-center justify-between w-full h-10 bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-left text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:bg-gray-50 ${isOpen ? 'border-indigo-600' : ''}`}
         onClick={toggleDropdown}
+        disabled={disabled}
       >
-        <span className='truncate'>
+        <span
+          className='truncate'
+          title={
+            options.filter((option) => option.selected).length > 0
+              ? options
+                  .filter((option) => option.selected)
+                  .map((opt) => opt.value)
+                  .join(', ')
+              : 'Select...'
+          }
+        >
           {options.filter((option) => option.selected).length > 0
             ? options
                 .filter((option) => option.selected)
@@ -49,12 +62,14 @@ const Dropdown: React.FC<DropdownProps> = ({ isOpen, setIsOpen, options, handleC
               <li
                 key={option.xid}
                 onClick={(e) => {
-                  e.stopPropagation()
-                  handleClickOption(option)
+                  if ((option.disabled !== undefined && !option.disabled) || option.disabled === undefined) {
+                    e.stopPropagation()
+                    handleClickOption(option)
+                  }
                 }}
-                className={`cursor-pointer px-4 py-2 hover:bg-gray-100 ${
-                  option.selected ? 'bg-blue-100 font-medium' : ''
-                }`}
+                className={`px-4 py-2 hover:bg-blue-100 ${
+                  option.selected ? 'bg-blue-200 font-medium' : ''
+                } ${option.disabled ? 'bg-gray-100 hover:bg-gray-100 hover:cursor-not-allowed' : 'hover:cursor-pointer'}`}
               >
                 {option.value}
               </li>
