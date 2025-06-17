@@ -1,11 +1,10 @@
-import { ErrorMessage } from '@hookform/error-message'
 import Image from 'next/image'
-import { FC, Fragment, memo, MouseEvent, ReactNode, useEffect, useRef, useState } from 'react'
+import React, { Fragment, memo, MouseEvent, ReactNode, useEffect, useRef, useState } from 'react'
 import { Accept, useDropzone } from 'react-dropzone'
 import { Control, Controller, FieldErrorsImpl, FieldValues, Path, RegisterOptions } from 'react-hook-form'
 
 import FormError from './FormError'
-import { ArrowUpTrayIcon } from '@heroicons/react/20/solid'
+import { ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/20/solid'
 
 interface ImageUploaderProps<TFormValues extends FieldValues> {
   control: Control<TFormValues>
@@ -15,7 +14,7 @@ interface ImageUploaderProps<TFormValues extends FieldValues> {
   name: Path<TFormValues>
   label?: string
   placeholder?: string
-  rules?: RegisterOptions
+  rules?: RegisterOptions<TFormValues>
   errors?: Partial<FieldErrorsImpl<TFormValues>>
   uploading: boolean
   isBrakePointChange?: boolean
@@ -25,7 +24,7 @@ interface ImageUploaderProps<TFormValues extends FieldValues> {
   customInnerDropzone?: ReactNode
 }
 
-const ImageUploader: FC<ImageUploaderProps<any>> = ({
+const ImageUploader = <TFormValues extends FieldValues = FieldValues>({
   control,
   file,
   fileUrl = '',
@@ -45,7 +44,7 @@ const ImageUploader: FC<ImageUploaderProps<any>> = ({
   isBrakePointChange = false,
   customInnerDropzone,
   ...props
-}) => {
+}: ImageUploaderProps<TFormValues>) => {
   const [imgUrl, setImgUrl] = useState('')
   const [fileExtension, setFileExtension] = useState('')
   const ref = useRef(null)
@@ -92,7 +91,7 @@ const ImageUploader: FC<ImageUploaderProps<any>> = ({
 
       setImgUrl(URL.createObjectURL(file))
     }
-  }, [isBrakePointChange])
+  }, [file, isBrakePointChange])
 
   useEffect(() => {
     if (fileUrl) {
@@ -109,14 +108,7 @@ const ImageUploader: FC<ImageUploaderProps<any>> = ({
           type='button'
           className={`absolute top-4 right-3 z-50 h-11 w-11 rounded-md border border-red-600 bg-red-600 p-3 ${imgUrl.length > 0 ? 'visible' : 'invisible'}`}
         >
-          <Image
-            priority
-            src='/assets/svg/trash.svg'
-            width={19}
-            height={20}
-            alt='trash icon'
-            draggable={false}
-          />
+          <TrashIcon className='size-5 text-white' />
         </button>
       )}
 
@@ -197,7 +189,7 @@ const ImageUploader: FC<ImageUploaderProps<any>> = ({
                       <Image
                         src={imgUrl}
                         alt='image preview'
-                        layout='fill'
+                        fill
                         className={`object-contain ${uploading && 'blur-md filter'}`}
                         draggable={false}
                       />
@@ -217,13 +209,9 @@ const ImageUploader: FC<ImageUploaderProps<any>> = ({
         />
       )}
 
-      <ErrorMessage
-        errors={errors}
-        name={name}
-        render={({ message }) => <FormError message={message} />}
-      />
+      {errors && errors[name] && errors[name].message && <FormError message={String(errors[name].message)} />}
     </div>
   )
 }
 
-export default memo(ImageUploader)
+export default memo(ImageUploader) as typeof ImageUploader

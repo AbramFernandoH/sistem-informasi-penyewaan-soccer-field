@@ -37,6 +37,12 @@ export type ListFieldRequest = {
   skip: number
 }
 
+export type DetailFieldResponse = BaseResponse<Field>
+
+export type CreateEditFieldRequest = Omit<Field, '_id' | 'pricePerHour'> & {
+  pricePerHour: string
+}
+
 // Admin
 
 export type Admin = {
@@ -75,3 +81,16 @@ export type Schedule = {
 
 export type CreateScheduleRequest = Omit<Schedule, '_id'>
 export type CreateScheduleResponse = BaseResponse<Schedule>
+
+// Asset
+
+export type Asset = {
+  imageUrl: string
+}
+
+export type DetailAssetResponse = BaseResponse<Asset>
+
+export type UploadAssetRequest = {
+  file: File
+  contentType: string
+}
