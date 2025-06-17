@@ -3,13 +3,52 @@ const express = require('express');
 const router = express.Router();
 const Schedule = require('../models/schedule');
 const { requireAuth} = require('../middleware');
+const mongoose = require("mongoose");
 
 router.get('/', async (req, res) => {
     try {
-        const { skip } = req.query
-        const currentSkip = skip ? Number(skip) : 0
-        const listSchedule = await Schedule.find({}).limit(10).skip(currentSkip);
-        const totalSchedule = await Schedule.countDocuments({});
+        const { skip, date, fieldId } = req.query;
+        const currentSkip = skip ? Number(skip) : 0;
+
+        // Build filter object
+        const filter = {};
+
+        // Filter by date if provided
+        if (date) {
+            const parsedDate = new Date(date);
+            if (!isNaN(parsedDate.getTime())) {
+                const startOfDay = new Date(parsedDate.setHours(0, 0, 0, 0));
+                const endOfDay = new Date(parsedDate.setHours(23, 59, 59, 999));
+                filter.date = { $gte: startOfDay, $lte: endOfDay };
+            } else {
+                return res.status(400).json({
+                    code: 400,
+                    success: false,
+                    message: 'Invalid date format',
+                    data: null,
+                });
+            }
+        }
+
+        // Filter by fieldId if provided
+        if (fieldId) {
+            if (!mongoose.Types.ObjectId.isValid(fieldId)) {
+                return res.status(400).json({
+                    code: 400,
+                    success: false,
+                    message: 'Invalid field ID format',
+                    data: null,
+                });
+            }
+
+            filter.field = fieldId;
+        }
+
+        const listSchedule = await Schedule.find(filter)
+            .limit(15)
+            .skip(currentSkip);
+
+        const totalSchedule = await Schedule.countDocuments(filter);
 
         return res.status(200).json({
             code: 200,
@@ -18,7 +57,7 @@ router.get('/', async (req, res) => {
             data: {
                 items: listSchedule,
                 metadata: {
-                    limit: 10,
+                    limit: 15,
                     skip: currentSkip,
                     count: totalSchedule,
                 },
