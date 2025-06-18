@@ -73,6 +73,35 @@ router.get('/', async (req, res) => {
     }
 })
 
+router.get('/:scheduleId', async (req, res) => {
+    try {
+        const schedule = await Schedule.findById(req.params.scheduleId);
+
+        if (schedule !== null) {
+            return res.status(200).json({
+                code: 200,
+                message: 'OK',
+                success: true,
+                data: schedule,
+            });
+        } else {
+            return res.status(404).json({
+                code: 404,
+                success: false,
+                message: 'Not found',
+                data: null,
+            });
+        }
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get detail schedule',
+            data: null,
+        });
+    }
+})
+
 router.post('/add', async (req, res) => {
     try {
         const data = await Schedule.create(req.body);
