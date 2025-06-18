@@ -1,7 +1,7 @@
 'use client'
 
 import React, { FC, ReactNode, useEffect, useState } from 'react'
-import { CalendarIcon, ChartPieIcon, HomeIcon, UsersIcon, UserIcon } from '@heroicons/react/24/outline'
+import { BanknotesIcon, CalendarIcon, ChartPieIcon, HomeIcon, UsersIcon, UserIcon } from '@heroicons/react/24/outline'
 import { Toaster } from 'react-hot-toast'
 import { BreadcrumbData } from '@/components/cms/Breadcrumbs'
 import { usePathname, useRouter } from 'next/navigation'
@@ -27,6 +27,7 @@ const CMSLayout: FC<CMSLayoutProps> = ({ children, pages }) => {
     { name: 'Lapangan', href: '/cms/fields', icon: UsersIcon, current: pathname.includes('/cms/fields') },
     { name: 'Jadwal', href: '/cms/schedules', icon: CalendarIcon, current: pathname.includes('/cms/schedules') },
     { name: 'Laporan', href: '/cms/reports', icon: ChartPieIcon, current: pathname.includes('/cms/reports') },
+    { name: 'Pembayaran', href: '/cms/payments', icon: BanknotesIcon, current: pathname.includes('/cms/payments') },
   ]
 
   useEffect(() => {
