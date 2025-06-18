@@ -86,8 +86,13 @@ export type ListScheduleRequest = Partial<{
   fieldId: string
 }>
 
-export type CreateScheduleRequest = Omit<Schedule, '_id'>
-export type CreateScheduleResponse = BaseResponse<Schedule>
+export type DetailScheduleResponse = BaseResponse<
+  Omit<Schedule, 'field'> & {
+    field: Field
+  }
+>
+
+export type CreateEditScheduleRequest = Omit<Schedule, '_id'>
 
 // Asset
 

@@ -11,17 +11,18 @@ import DatePicker from '@/components/DatePicker'
 import TimeDropdown from '@/components/TimeDropdown'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  CreateScheduleRequest,
-  CreateScheduleResponse,
+  CreateEditScheduleRequest,
+  DetailScheduleResponse,
   ListFieldRequest,
   ListFieldResponse,
   ListScheduleRequest,
   ListScheduleResponse,
 } from '@/utils/type'
-import { fetchWithAuth } from '@/utils/helper'
+import { fetchWithAuth, isSequential, isTimeSlotExpired } from '@/utils/helper'
 import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import { isToday } from 'date-fns'
 
 export default function CreateSchedule() {
   const router = useRouter()
@@ -42,7 +43,7 @@ export default function CreateSchedule() {
     getValues,
     watch,
     formState: { errors },
-  } = useForm<CreateScheduleRequest>({
+  } = useForm<CreateEditScheduleRequest>({
     defaultValues: {
       field: '',
       reason: '',
@@ -95,7 +96,7 @@ export default function CreateSchedule() {
     isPending: isPendingCreateSchedule,
     isSuccess: isSuccessCreateSchedule,
     mutate: createSchedule,
-  } = useMutation<CreateScheduleResponse, unknown, CreateScheduleRequest>({
+  } = useMutation<DetailScheduleResponse, unknown, CreateEditScheduleRequest>({
     mutationFn: async (data) => {
       const response = await fetchWithAuth('cms', `${ENV.API_URL}/schedules/add`, {
         method: 'POST',
@@ -170,13 +171,15 @@ export default function CreateSchedule() {
     const timeSlots = getValues('timeSlots')
     const reason = getValues('reason')
 
-    if (date.length === 0 || timeSlots.length === 0 || reason.length === 0) {
+    if (date.length === 0 || timeSlots.length === 0 || reason.length === 0 || !isSequential(timeSlots)) {
       if (date.length === 0) {
         setError('date', { message: 'Tanggal wajib diisi!' })
       }
 
       if (timeSlots.length === 0) {
         setError('timeSlots', { message: 'Waktu wajib diisi!' })
+      } else if (!isSequential(timeSlots)) {
+        setError('timeSlots', { message: 'Waktu yang diisi harus berurutan!' })
       }
 
       if (reason.length === 0) {
@@ -187,7 +190,7 @@ export default function CreateSchedule() {
     }
   }
 
-  const onSubmit = (data: CreateScheduleRequest) => {
+  const onSubmit = (data: CreateEditScheduleRequest) => {
     createSchedule(data)
   }
 
@@ -209,16 +212,21 @@ export default function CreateSchedule() {
 
   useEffect(() => {
     if (isSuccessListSchedule && dataListSchedule) {
+      const isSelectedDateToday = isToday(new Date(date))
       const existsTimeSlots = dataListSchedule.data.items.flatMap((opt) => opt.timeSlots)
       const selectedValue = Array.from({ length: 15 })
         .map((_, idx) => idx)
-        .filter((val) => !existsTimeSlots.includes(val))
+        .filter((val) =>
+          isSelectedDateToday
+            ? !existsTimeSlots.includes(val) && !isTimeSlotExpired(val, date)
+            : !existsTimeSlots.includes(val)
+        )
 
       const options = Array.from({ length: 15 }).map((_, idx) => ({
         xid: `${field}-${date}-${idx}`,
         value: `${7 + idx < 10 ? '0' : ''}${7 + idx}:00 - ${8 + idx < 10 ? '0' : ''}${8 + idx}:00`,
         selected: selectedValue.length > 0 ? idx === selectedValue[0] : false,
-        disabled: existsTimeSlots.includes(idx),
+        disabled: existsTimeSlots.includes(idx) || (isSelectedDateToday && isTimeSlotExpired(idx, date)),
       }))
 
       setTimeOptions(options)

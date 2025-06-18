@@ -1,7 +1,8 @@
-import { COOKIES, ENV } from '@/utils/constants'
+import { COOKIES, ENV, timeSlots } from '@/utils/constants'
 import { BaseResponse } from '@/utils/type'
 import { KeyboardEvent } from 'react'
 import { formatCurrency } from '@/utils/formatter'
+import { isBefore, isToday, parse } from 'date-fns'
 
 // Set a cookie with a name, value, and expiration in days
 export const setCookie = (name: string, value: string, days: number) => {
@@ -119,3 +120,24 @@ export const cleanNumber = (value: string) => Number(String(value).replace(/[,.]
 
 export const addDotsToNumber = (value: string | number) =>
   formatCurrency(Number(String(value).replace(/[,.]/g, '')), {})
+
+export const isSequential = (arr: number[]) => {
+  if (arr.length < 2) return true
+  const sorted = [...arr].sort((a, b) => a - b)
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] !== sorted[i - 1] + 1) return false
+  }
+
+  return true
+}
+
+export const isTimeSlotExpired = (slotIndex: number, selectedDate: string) => {
+  const now = new Date()
+  const isSelectedDateToday = isToday(new Date(selectedDate))
+
+  if (!isSelectedDateToday) return false
+
+  const endTimeStr = timeSlots[slotIndex].split(' - ')[1] // e.g., '08:00'
+  const endTime = parse(endTimeStr, 'HH:mm', new Date()) // today at 08:00
+  return isBefore(endTime, now)
+}
