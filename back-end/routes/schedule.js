@@ -5,7 +5,7 @@ const Schedule = require('../models/schedule');
 const { requireAuth} = require('../middleware');
 const mongoose = require("mongoose");
 
-router.get('/', async (req, res) => {
+router.get('/', requireAuth('cms'), async (req, res) => {
     try {
         const { skip, date, fieldId } = req.query;
         const currentSkip = skip ? Number(skip) : 0;
@@ -73,9 +73,78 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/:scheduleId', async (req, res) => {
+router.get('/public', async (req, res) => {
     try {
-        const schedule = await Schedule.findById(req.params.scheduleId);
+        const { skip, date, fieldId } = req.query;
+        const currentSkip = skip ? Number(skip) : 0;
+
+        // Build filter object
+        const filter = {};
+
+        // Filter by date if provided
+        if (date) {
+            const parsedDate = new Date(date);
+            if (!isNaN(parsedDate.getTime())) {
+                const startOfDay = new Date(parsedDate.setHours(0, 0, 0, 0));
+                const endOfDay = new Date(parsedDate.setHours(23, 59, 59, 999));
+                filter.date = { $gte: startOfDay, $lte: endOfDay };
+            } else {
+                return res.status(400).json({
+                    code: 400,
+                    success: false,
+                    message: 'Invalid date format',
+                    data: null,
+                });
+            }
+        }
+
+        // Filter by fieldId if provided
+        if (fieldId) {
+            if (!mongoose.Types.ObjectId.isValid(fieldId)) {
+                return res.status(400).json({
+                    code: 400,
+                    success: false,
+                    message: 'Invalid field ID format',
+                    data: null,
+                });
+            }
+
+            filter.field = fieldId;
+        }
+
+        const listSchedule = await Schedule.find(filter)
+            .limit(15)
+            .skip(currentSkip)
+            .select('field date timeSlots');
+
+        const totalSchedule = await Schedule.countDocuments(filter);
+
+        return res.status(200).json({
+            code: 200,
+            success: true,
+            message: 'OK',
+            data: {
+                items: listSchedule,
+                metadata: {
+                    limit: 15,
+                    skip: currentSkip,
+                    count: totalSchedule,
+                },
+            },
+        });
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get list schedule',
+            data: null,
+        });
+    }
+})
+
+router.get('/:scheduleId', requireAuth('cms'), async (req, res) => {
+    try {
+        const schedule = await Schedule.findById(req.params.scheduleId).populate('field');
 
         if (schedule !== null) {
             return res.status(200).json({
