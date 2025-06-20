@@ -6,6 +6,7 @@ const Report = require('../models/report');
 const Schedule = require('../models/schedule');
 const { requireAuth } = require('../middleware');
 const snap = require('../utils/midtrans')
+const mongoose = require('mongoose');
 
 router.get('/:userId', requireAuth('pwa'), async (req, res) => {
     try {
@@ -39,10 +40,31 @@ router.get('/:userId', requireAuth('pwa'), async (req, res) => {
 
 router.get('/', requireAuth('cms'), async (req, res) => {
     try {
-        const { skip } = req.query
-        const currentSkip = skip ? Number(skip) : 0
-        const listPayment = await Payment.find({}).limit(10).skip(currentSkip);
-        const totalPayment = await Payment.countDocuments({});
+        const { skip, bookingId } = req.query;
+        const currentSkip = skip ? Number(skip) : 0;
+
+        const filter = {};
+
+        if (bookingId) {
+            if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+                return res.status(400).json({
+                    code: 400,
+                    success: false,
+                    message: 'Invalid booking ID format',
+                    data: null,
+                });
+            }
+
+            filter.booking = bookingId;
+        }
+
+        const listPayment = await Payment.find(filter)
+            .limit(10)
+            .skip(currentSkip)
+            .populate('booking user');
+
+        const totalPayment = await Payment.countDocuments(filter);
+
         const metadata = {
             limit: 10,
             skip: currentSkip,
@@ -58,14 +80,15 @@ router.get('/', requireAuth('cms'), async (req, res) => {
                 metadata,
             },
         });
-    } catch {
+    } catch (error) {
+        console.error(error);
         return res.status(500).json({
             code: 500,
             success: false,
             message: 'Failed to get list payment',
         });
     }
-})
+});
 
 router.post('/:paymentId/refund', async (req, res) => {
     const { paymentId } = req.params;
