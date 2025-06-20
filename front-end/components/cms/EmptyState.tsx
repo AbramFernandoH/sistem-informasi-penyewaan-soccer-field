@@ -5,12 +5,15 @@ import Link from 'next/link'
 
 type EmptyStateProps = {
   text?: string
-  addUrl: string
+  addUrl?: string
+  wrapperClassName?: string
 }
 
-const EmptyState: FC<EmptyStateProps> = ({ addUrl, text }) => {
+const EmptyState: FC<EmptyStateProps> = ({ addUrl, text, wrapperClassName = '' }) => {
   return (
-    <div className='min-h-[calc(100vh-400px)] flex flex-col items-center justify-center space-y-6 px-3'>
+    <div
+      className={`min-h-[calc(100vh-400px)] flex flex-col items-center justify-center space-y-6 px-3 ${wrapperClassName}`}
+    >
       <FolderPlusIcon className='size-12 text-gray-500' />
 
       <div className='flex flex-col space-y-2 text-center'>
@@ -21,14 +24,16 @@ const EmptyState: FC<EmptyStateProps> = ({ addUrl, text }) => {
         </p>
       </div>
 
-      <Link
-        href={addUrl}
-        className='flex justify-center items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <PlusIcon className='size-5' />
+      {addUrl && (
+        <Link
+          href={addUrl}
+          className='flex justify-center items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+        >
+          <PlusIcon className='size-5' />
 
-        <span>Tambah</span>
-      </Link>
+          <span>Tambah</span>
+        </Link>
+      )}
     </div>
   )
 }
