@@ -141,3 +141,17 @@ export const isTimeSlotExpired = (slotIndex: number, selectedDate: string) => {
   const endTime = parse(endTimeStr, 'HH:mm', new Date()) // today at 08:00
   return isBefore(endTime, now)
 }
+
+export const timeSlotsString = (time: number[]) => {
+  const startTime = timeSlots[time[0]].split(' - ')[0]
+
+  if (time.length > 1) {
+    const endTime = timeSlots[time[time.length - 1]].split(' - ')[1]
+
+    return `${startTime} - ${endTime}`
+  }
+
+  const endTime = timeSlots[time[0]].split(' - ')[1]
+
+  return `${startTime} - ${endTime}`
+}
