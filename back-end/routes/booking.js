@@ -18,7 +18,7 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     try {
         const { skip } = req.query
         const currentSkip = skip ? Number(skip) : 0
-        const listBooking = await Booking.find({}).limit(10).skip(currentSkip);
+        const listBooking = await Booking.find({}).populate('field payments').limit(10).skip(currentSkip);
         const totalBooking = await Booking.countDocuments({});
 
         return res.status(200).json({
