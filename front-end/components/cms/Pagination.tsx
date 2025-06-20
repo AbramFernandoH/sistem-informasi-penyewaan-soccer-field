@@ -18,10 +18,12 @@ const Pagination: FC<PaginationProps> = ({ limit, total, currentPage, handleClic
     >
       <div className='hidden sm:block'>
         <p className='text-sm text-gray-700'>
-          Showing <span className='font-medium'>1</span> to <span className='font-medium'>{limit}</span> of{' '}
+          Showing <span className='font-medium'>{currentPage === 1 ? 1 : (currentPage - 1) * limit + 1}</span> to{' '}
+          <span className='font-medium'>{currentPage === 1 ? limit : currentPage * limit}</span> of{' '}
           <span className='font-medium'>{total}</span> results
         </p>
       </div>
+
       <div className='flex flex-1 justify-between sm:justify-end'>
         <button
           className='relative inline-flex items-center rounded-md bg-white px-3 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
@@ -38,7 +40,7 @@ const Pagination: FC<PaginationProps> = ({ limit, total, currentPage, handleClic
         <button
           className='relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
           onClick={handleClickNext}
-          disabled={currentPage * 10 + 10 > total}
+          disabled={currentPage >= Math.ceil(total / limit)}
         >
           <ArrowRightIcon className='size-4 text-gray-900' />
         </button>
