@@ -11,7 +11,7 @@ type FieldOrderModalProps = {
   disabled?: boolean
 }
 
-const FieldOrderModal: FC<FieldOrderModalProps> = ({ isOpen, text, closeModal, action, disabled = false }) => {
+const DeleteModal: FC<FieldOrderModalProps> = ({ isOpen, text, closeModal, action, disabled = false }) => {
   const onClose = () => {
     if (!disabled) {
       closeModal()
@@ -59,4 +59,4 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ isOpen, text, closeModal, a
   )
 }
 
-export default FieldOrderModal
+export default DeleteModal
