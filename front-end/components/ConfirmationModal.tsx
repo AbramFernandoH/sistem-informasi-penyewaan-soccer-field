@@ -33,7 +33,7 @@ const ConfirmationModal: FC<ConfirmationModalProps> = ({ isOpen, text, closeModa
 
         <h4 className='mb-2 text-2xl font-semibold text-gray-800 sm:text-title-sm'>Konfirmasi</h4>
 
-        <p className='text-sm leading-6 text-gray-500 max-w-[350px]'>{text}</p>
+        <p className='text-sm leading-6 text-gray-500 max-w-[360px]'>{text}</p>
 
         <div className='flex items-center justify-center w-full gap-3 mt-7'>
           <button

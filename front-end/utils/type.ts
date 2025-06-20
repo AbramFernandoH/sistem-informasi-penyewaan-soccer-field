@@ -110,6 +110,7 @@ export type UploadAssetRequest = {
 // Payment
 
 export type Payment = {
+  _id: string
   booking: Booking
   user: User | null
   amount: number
@@ -120,6 +121,12 @@ export type Payment = {
   refundProof: string | null
   refundNote: string | null
 }
+
+export type ListPaymentResponse = ListBaseResponse<Payment>
+export type ListPaymentRequest = Partial<{
+  skip: number
+  bookingId: string
+}>
 
 // Booking
 
@@ -141,3 +148,5 @@ export type ListBookingResponse = ListBaseResponse<Booking>
 export type ListBookingRequest = {
   skip: number
 }
+
+export type DetailBookingResponse = BaseResponse<Booking>

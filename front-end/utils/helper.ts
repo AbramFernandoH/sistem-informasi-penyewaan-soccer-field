@@ -155,3 +155,19 @@ export const timeSlotsString = (time: number[]) => {
 
   return `${startTime} - ${endTime}`
 }
+
+export const hasTimeSlotEnded = (orderDate: string, selectedSlots: number[]) => {
+  if (!selectedSlots || selectedSlots.length === 0) return false
+
+  const lastSlotIndex = Math.max(...selectedSlots)
+  const slotRange = timeSlots[lastSlotIndex]
+  const endTime = slotRange.split(' - ')[1] // e.g. '22:00'
+
+  const datePart = orderDate.split('T')[0] // e.g. '2025-06-25'
+  const combinedDateTimeString = `${datePart} ${endTime}`
+
+  const endDateTime = parse(combinedDateTimeString, 'yyyy-MM-dd HH:mm', new Date())
+  const now = new Date()
+
+  return isBefore(now, endDateTime)
+}

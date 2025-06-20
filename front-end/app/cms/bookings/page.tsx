@@ -11,6 +11,7 @@ import { format, parseISO } from 'date-fns'
 import { id } from 'date-fns/locale'
 import Link from 'next/link'
 import { EyeIcon } from '@heroicons/react/24/outline'
+import BookingBadge from '@/components/BookingBadge'
 
 export default function Payments() {
   const [skip, setSkip] = useState(0)
@@ -59,18 +60,10 @@ export default function Payments() {
           timeSlotsString(booking.timeSlots),
           booking.field.name,
           formatToRupiah(booking.price),
-          <div
+          <BookingBadge
             key={`booking-status-${booking._id}`}
-            className={`${booking.status === 'fully_paid' ? 'bg-green-500' : booking.status === 'half_paid' ? 'bg-gray-500' : booking.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'} text-white text-xs px-2 py-1 box-border rounded-lg w-fit`}
-          >
-            {booking.status === 'fully_paid'
-              ? 'Lunas'
-              : booking.status === 'half_paid'
-                ? 'DP Lunas'
-                : booking.status === 'pending'
-                  ? 'Pending'
-                  : 'Gagal'}
-          </div>,
+            status={booking.status}
+          />,
           <Link
             key={booking._id}
             href={`/cms/bookings/${booking._id}`}
