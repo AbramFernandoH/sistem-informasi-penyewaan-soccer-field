@@ -47,7 +47,7 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({ pages }) => {
               />
 
               {page.current ? (
-                <p className='text-sm font-medium text-indigo-500 hover:text-indigo-700'>{page.name}</p>
+                <p className='text-sm font-medium text-indigo-500'>{page.name}</p>
               ) : (
                 <Link
                   href={page.path}
