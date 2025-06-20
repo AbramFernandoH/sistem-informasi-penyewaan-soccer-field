@@ -107,7 +107,11 @@ router.post('/:paymentId/refund', async (req, res) => {
             data: null,
         });
     } catch {
-        return res.status(500).json({ error: 'Failed to process refund', details: err.message });
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to process refund',
+        });
     }
 });
 
