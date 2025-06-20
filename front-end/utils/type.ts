@@ -106,3 +106,38 @@ export type UploadAssetRequest = {
   file: File
   contentType: string
 }
+
+// Payment
+
+export type Payment = {
+  booking: Booking
+  user: User | null
+  amount: number
+  status: 'pending' | 'success' | 'failure'
+  orderId: string
+  transactionTime: string
+  refundStatus: 'not_requested' | 'refunded_manually' | null
+  refundProof: string | null
+  refundNote: string | null
+}
+
+// Booking
+
+export type Booking = {
+  _id: string
+  name: string
+  email: string
+  telephoneNumber: string
+  orderDate: string
+  timeSlots: number[]
+  price: number
+  status: 'pending' | 'half_paid' | 'fully_paid' | 'failure'
+  field: Field
+  user: User | null
+  payments: Payment[]
+}
+
+export type ListBookingResponse = ListBaseResponse<Booking>
+export type ListBookingRequest = {
+  skip: number
+}

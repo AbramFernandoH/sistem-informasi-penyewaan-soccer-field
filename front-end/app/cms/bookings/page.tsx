@@ -2,84 +2,88 @@
 import CMSLayout from '@/layouts/cms'
 import Table from '@/components/cms/Table'
 import { BreadcrumbData } from '@/components/cms/Breadcrumbs'
-import Link from 'next/link'
-import { EyeIcon } from '@heroicons/react/24/outline'
-import { timeSlotsString } from '@/utils/helper'
+import { fetchWithAuth, formatToRupiah, timeSlotsString } from '@/utils/helper'
+import { useQuery } from '@tanstack/react-query'
+import { ReactNode, useEffect, useState } from 'react'
+import { ListBookingRequest, ListBookingResponse } from '@/utils/type'
+import { ENV } from '@/utils/constants'
 import { format, parseISO } from 'date-fns'
 import { id } from 'date-fns/locale'
+import Link from 'next/link'
+import { EyeIcon } from '@heroicons/react/24/outline'
 
 export default function Payments() {
+  const [skip, setSkip] = useState(0)
+  const [page, setPage] = useState(1)
+  const [tableData, setTableData] = useState<(string | ReactNode)[][]>([])
+
   const breadcrumbsPages: BreadcrumbData[] = [{ name: 'List Booking', path: '/cms/bookings', current: true }]
   const tableHeaders = ['Nama Penyewa', 'Tanggal', 'Waktu', 'Lapangan', 'Harga', 'Status', 'Action']
 
-  const tableData = [
-    [
-      'Salahuddin Nabil',
-      format(parseISO('2025-06-18T00:00:00.000Z'), 'd MMMM yyyy', { locale: id }),
-      timeSlotsString([0, 1]),
-      'Lapangan 1',
-      'Rp 300.000',
-      <div
-        key={1}
-        className='bg-red-500 text-white text-xs px-2 py-1 box-border rounded-lg w-fit'
-      >
-        Failure
-      </div>,
-      <Link
-        key={1}
-        href={`/cms/bookings/booking-1`}
-        className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <EyeIcon className='size-3' />
+  const { data: dataListBooking, isSuccess: isSuccessListBooking } = useQuery<
+    ListBookingRequest,
+    unknown,
+    ListBookingResponse
+  >({
+    queryKey: ['booking', skip],
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const res = await fetchWithAuth('cms', `${ENV.API_URL}/bookings?skip=${skip}`)
 
-        <span>Detail</span>
-      </Link>,
-    ],
-    [
-      'Dimastri Bima',
-      format(parseISO('2025-06-19T00:00:00.000Z'), 'd MMMM yyyy', { locale: id }),
-      timeSlotsString([9, 10]),
-      'Lapangan 1',
-      'Rp 300.000',
-      <div
-        key={2}
-        className='bg-orange-500 text-white text-xs px-2 py-1 box-border rounded-lg w-fit'
-      >
-        Pending
-      </div>,
-      <Link
-        key={2}
-        href={`/cms/bookings/booking-2`}
-        className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <EyeIcon className='size-3' />
+      if (!res.ok) {
+        const errorData = await res.json()
 
-        <span>Detail</span>
-      </Link>,
-    ],
-    [
-      'Abram Fernando',
-      format(parseISO('2025-12-20T00:00:00.000Z'), 'd MMMM yyyy', { locale: id }),
-      timeSlotsString([11, 13]),
-      'Lapangan 1',
-      'Rp 300.000',
-      <div
-        key={3}
-        className='bg-green-500 text-white text-xs px-2 py-1 box-border rounded-lg w-fit'
-      >
-        Success
-      </div>,
-      <Link
-        key={3}
-        href={`/cms/bookings/booking-3`}
-        className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-      >
-        <EyeIcon className='size-3' />
+        throw new Error(errorData.message || 'Failed to get list booking')
+      }
 
-        <span>Detail</span>
-      </Link>,
-    ],
-  ]
+      return res.json()
+    },
+  })
+
+  const handleClickPrev = () => {
+    setSkip(skip > 0 ? skip - 10 : 0)
+    setPage(page > 1 ? page - 1 : 1)
+  }
+
+  const handleClickNext = () => {
+    setSkip(skip + 10)
+    setPage(page + 1)
+  }
+
+  useEffect(() => {
+    if (isSuccessListBooking && dataListBooking && dataListBooking.data) {
+      setTableData(
+        dataListBooking.data.items.map((booking) => [
+          booking.name,
+          format(parseISO(booking.orderDate), 'd MMMM yyyy', { locale: id }),
+          timeSlotsString(booking.timeSlots),
+          booking.field.name,
+          formatToRupiah(booking.price),
+          <div
+            key={`booking-status-${booking._id}`}
+            className={`${booking.status === 'fully_paid' ? 'bg-green-500' : booking.status === 'half_paid' ? 'bg-gray-500' : booking.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'} text-white text-xs px-2 py-1 box-border rounded-lg w-fit`}
+          >
+            {booking.status === 'fully_paid'
+              ? 'Lunas'
+              : booking.status === 'half_paid'
+                ? 'DP Lunas'
+                : booking.status === 'pending'
+                  ? 'Pending'
+                  : 'Gagal'}
+          </div>,
+          <Link
+            key={booking._id}
+            href={`/cms/bookings/${booking._id}`}
+            className='w-fit flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+          >
+            <EyeIcon className='size-3' />
+
+            <span>Detail</span>
+          </Link>,
+        ])
+      )
+    }
+  }, [isSuccessListBooking, dataListBooking])
 
   return (
     <CMSLayout pages={breadcrumbsPages}>
@@ -88,6 +92,10 @@ export default function Payments() {
         description='list manajemen booking'
         headers={tableHeaders}
         data={tableData}
+        totalData={dataListBooking?.data.metadata.count ?? 0}
+        currentPage={page}
+        handleClickPrev={handleClickPrev}
+        handleClickNext={handleClickNext}
       />
     </CMSLayout>
   )
