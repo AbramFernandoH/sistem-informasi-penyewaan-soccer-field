@@ -130,24 +130,28 @@ export default function Reports() {
             key={`actions-${report._id}`}
             className='flex items-center space-x-2'
           >
-            <Link
-              href={`/cms/reports/${report._id}/edit`}
-              className='w-fit flex items-center space-x-2 rounded-md bg-orange-500 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-            >
-              <PencilIcon className='size-3' />
+            {report.booking === null ? (
+              <>
+                <Link
+                  href={`/cms/reports/${report._id}/edit`}
+                  className='w-fit flex items-center space-x-2 rounded-md bg-orange-500 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+                >
+                  <PencilIcon className='size-3' />
 
-              <span>Edit</span>
-            </Link>
+                  <span>Edit</span>
+                </Link>
 
-            {dataListReport.data.items.length > 1 && report.booking === null && (
-              <button
-                className='w-fit flex items-center space-x-2 rounded-md bg-red-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-300 disabled:cursor-not-allowed'
-                onClick={handleClickOpenDeleteModal(report)}
-              >
-                <TrashIcon className='size-3' />
+                <button
+                  className='w-fit flex items-center space-x-2 rounded-md bg-red-600 px-3 py-2 text-center text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-300 disabled:cursor-not-allowed'
+                  onClick={handleClickOpenDeleteModal(report)}
+                >
+                  <TrashIcon className='size-3' />
 
-                <span>Hapus</span>
-              </button>
+                  <span>Hapus</span>
+                </button>
+              </>
+            ) : (
+              '-'
             )}
           </div>,
         ])
