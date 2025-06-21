@@ -370,6 +370,7 @@ router.post('/callback', async (req, res) => {
             type: 'income',
             totalPrice: booking.price,
             booking: booking._id,
+            createdBy: null,
         });
     } else if (['cancel', 'deny', 'expire'].includes(transaction_status)) {
         const booking = await Booking.findOne({ 'payments.orderId': order_id })
@@ -386,7 +387,7 @@ router.post('/callback', async (req, res) => {
 
 router.post('/:bookingId/refund', async (req, res) => {
     const { bookingId } = req.params;
-    const { refundNote = 'Di refund oleh admin', refundProof } = req.body;
+    const { refundNote = 'Di refund oleh admin', refundProof, admin } = req.body;
 
     try {
         const booking = await Booking.findById(bookingId).populate('payments');
@@ -409,7 +410,8 @@ router.post('/:bookingId/refund', async (req, res) => {
             name: `Refund Booking ${relatedSchedule?.reason || booking._id}`,
             type: 'expense',
             totalPrice: totalPaid,
-            booking: booking._id
+            booking: booking._id,
+            createdBy: admin,
         });
 
         // Delete schedule entry if it exists

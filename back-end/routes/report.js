@@ -8,7 +8,7 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     try {
         const { skip } = req.query
         const currentSkip = skip ? Number(skip) : 0
-        const listReport = await Report.find({}).limit(10).skip(currentSkip);
+        const listReport = await Report.find({}).populate('createdBy').limit(10).skip(currentSkip);
         const totalReport = await Report.countDocuments({});
 
         return res.status(200).json({

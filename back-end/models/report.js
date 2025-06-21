@@ -20,7 +20,16 @@ const ReportSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Booking',
         default: null,
-    }
-});
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AdminUser',
+        default: null,
+    },
+    attachment: {
+        type: String,
+        default: ''
+    },
+}, { timestamps: true });
 
 module.exports = mongoose.model('Report', ReportSchema);
