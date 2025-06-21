@@ -121,6 +121,8 @@ export type Payment = {
 
 export type ListPaymentResponse = ListBaseResponse<Payment>
 
+export type DetailPaymentResponse = BaseResponse<Payment>
+
 // Booking
 
 export type Booking = {

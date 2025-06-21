@@ -6,6 +6,7 @@ type DetailCardTextsProps = {
     value: string | ReactNode
   }[]
   wrapperClassName?: string
+  innerWrapperClassName?: string
   labelClassName?: string
   valueClassName?: string
 }
@@ -13,6 +14,7 @@ type DetailCardTextsProps = {
 const DetailCardTexts: FC<DetailCardTextsProps> = ({
   data,
   wrapperClassName = '',
+  innerWrapperClassName = '',
   labelClassName = '',
   valueClassName = '',
 }) => {
@@ -21,7 +23,7 @@ const DetailCardTexts: FC<DetailCardTextsProps> = ({
       {data.map(({ label, value }, idx) => (
         <div
           key={`${label}-${idx}`}
-          className='flex flex-col space-y-1 text-sm w-[200px]'
+          className={`flex flex-col space-y-1 text-sm w-[200px] ${innerWrapperClassName}`}
         >
           <h3 className={`text-gray-400 font-medium ${labelClassName}`}>{label}</h3>
 

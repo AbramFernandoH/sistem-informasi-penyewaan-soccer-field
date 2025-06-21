@@ -179,8 +179,6 @@ export default function DetailPayment() {
           backUrl='/cms/bookings'
         />
 
-        <div></div>
-
         <DetailCard title='Info Booking'>
           <DetailCardTexts
             data={[
