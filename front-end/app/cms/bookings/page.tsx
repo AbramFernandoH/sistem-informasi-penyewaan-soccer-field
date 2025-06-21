@@ -55,7 +55,17 @@ export default function Payments() {
     if (isSuccessListBooking && dataListBooking && dataListBooking.data) {
       setTableData(
         dataListBooking.data.items.map((booking) => [
-          booking.name,
+          <div
+            key={`name-${booking._id}`}
+            className='max-w-[200px] w-full'
+          >
+            <p
+              title={booking.name}
+              className='truncate'
+            >
+              {booking.name}
+            </p>
+          </div>,
           format(parseISO(booking.orderDate), 'd MMMM yyyy', { locale: id }),
           timeSlotsString(booking.timeSlots),
           booking.field.name,
