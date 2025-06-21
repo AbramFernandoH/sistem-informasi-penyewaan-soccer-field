@@ -382,6 +382,55 @@ router.post('/callback', async (req, res) => {
 
     // always return 200 for midtrans callback
     return res.status(200).json({ message: 'Transaction status updated' });
-})
+});
+
+router.post('/:bookingId/refund', async (req, res) => {
+    const { bookingId } = req.params;
+    const { refundNote = 'Di refund oleh admin', refundProof } = req.body;
+
+    try {
+        const booking = await Booking.findById(bookingId).populate('payments');
+        if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+        booking.set({
+            refundStatus: 'refunded_manually',
+            refundProof,
+            refundNote,
+            status: 'failure',
+        });
+
+        await booking.save();
+
+        const relatedSchedule = await Schedule.findOne({ booking: booking._id });
+
+        // Create one expense report for the total paid
+        const totalPaid = booking.payments.reduce((acc, payment) => acc + payment.amount, 0);
+        await Report.create({
+            name: `Refund Booking ${relatedSchedule?.reason || booking._id}`,
+            type: 'expense',
+            totalPrice: totalPaid,
+            booking: booking._id
+        });
+
+        // Delete schedule entry if it exists
+        if (relatedSchedule) {
+            await relatedSchedule.deleteOne();
+        }
+
+        return res.status(200).json({
+            code: 200,
+            success: true,
+            message: 'Refund processed successfully',
+            data: null,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to process refund',
+        });
+    }
+});
 
 module.exports = router;

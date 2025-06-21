@@ -47,6 +47,19 @@ const BookingSchema = new mongoose.Schema({
         required: false,
         default: null,
     },
+    refundStatus: {
+        type: String,
+        enum: ['not_requested', 'refunded_manually'],
+        default: 'not_requested',
+    },
+    refundProof: {
+        type: String,
+        default: null
+    },
+    refundNote: {
+        type: String,
+        default: null
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', BookingSchema);
