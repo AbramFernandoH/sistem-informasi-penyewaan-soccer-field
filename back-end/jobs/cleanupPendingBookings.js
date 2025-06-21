@@ -8,12 +8,12 @@ async function cleanupPendingBookings() {
         // Find all expired pending bookings
         const expiredBookings = await Booking.find({
             status: 'pending',
-            createdAt: { $lte: oneHourAgo }
+            createdAt: { $gte: oneHourAgo }
         }).select('_id payments');
 
         const expiredPayments = await Payment.find({
             status: 'pending',
-            createdAt: { $lte: oneHourAgo }
+            createdAt: { $gte: oneHourAgo }
         }).select('_id');
 
         const expiredBookingIds = expiredBookings.map(b => String(b._id));
@@ -22,13 +22,8 @@ async function cleanupPendingBookings() {
         const relatedPaymentIdsToDelete = expiredBookings.flatMap(b => b.payments);
         const paymentIdsToDelete = expiredPayments.flatMap(payment => String(payment._id));
 
-        // Delete all payments that are either in that list OR have pending status
-        await Payment.deleteMany({
-            $or: [
-                { _id: { $in: relatedPaymentIdsToDelete } },
-                { status: 'pending' }
-            ]
-        });
+        // Delete all payments that are either in that list
+        await Payment.deleteMany({ _id: { $in: relatedPaymentIdsToDelete } });
 
         // Remove deleted payment IDs from any Booking (defensive clean)
         const bookingsWithDeletedPayments = await Booking.find({
