@@ -8,7 +8,7 @@ const Cart = require('../models/cart');
 const Schedule = require('../models/schedule');
 const { requireAuth } = require('../middleware');
 
-router.get('/', requireAuth('cms'), async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { skip } = req.query
         const currentSkip = skip ? Number(skip) : 0
