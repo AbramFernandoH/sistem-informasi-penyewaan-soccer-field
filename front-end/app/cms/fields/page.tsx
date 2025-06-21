@@ -74,7 +74,7 @@ export default function Field() {
       resetDeleteField()
     },
     onError: () => {
-      toast.error('Gagal hapus admin')
+      toast.error('Gagal hapus lapangan')
     },
   })
 
