@@ -27,6 +27,7 @@ export default function DetailPayment() {
 
   const [openCreateSecondPaymentModal, setOpenCreateSecondPaymentModal] = useState(false)
   const [tableData, setTableData] = useState<(string | ReactNode)[][]>([])
+
   const { data: dataDetailBooking, isSuccess: isSuccessDetailBooking } = useQuery<
     unknown,
     unknown,
@@ -293,6 +294,44 @@ export default function DetailPayment() {
             </div>
           )}
         </DetailCard>
+
+        {dataDetailBooking &&
+          dataDetailBooking.data.status === 'failure' &&
+          dataDetailBooking.data.refundStatus === 'refunded_manually' && (
+            <DetailCard title='Refund'>
+              <DetailCardTexts
+                data={[
+                  {
+                    label: 'Catatan',
+                    value: dataDetailBooking.data.refundNote,
+                  },
+                ]}
+              />
+
+              <DetailCardTexts
+                data={[
+                  {
+                    label: 'Bukti refund',
+                    value:
+                      dataDetailBooking.data.refundProof !== null ? (
+                        <Link
+                          href={dataDetailBooking.data.refundProof}
+                          target='_blank'
+                        >
+                          <img
+                            src={dataDetailBooking.data.refundProof}
+                            alt='Foto bukti refund'
+                            draggable={false}
+                          />
+                        </Link>
+                      ) : (
+                        '-'
+                      ),
+                  },
+                ]}
+              />
+            </DetailCard>
+          )}
       </CMSLayout>
 
       <ConfirmationModal
