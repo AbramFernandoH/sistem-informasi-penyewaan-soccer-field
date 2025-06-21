@@ -93,7 +93,7 @@ const Table: FC<TableProps> = ({
               </table>
             ) : (
               <EmptyState
-                addUrl={addButton?.path ?? '/cms/dashboard'}
+                addUrl={addButton?.path}
                 text={emptyStateText}
               />
             )}

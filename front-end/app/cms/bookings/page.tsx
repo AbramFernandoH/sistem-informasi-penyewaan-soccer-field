@@ -83,6 +83,7 @@ export default function Payments() {
       <Table
         title='List Booking'
         description='list manajemen booking'
+        emptyStateText='Belum ada customer yang melakukan booking'
         headers={tableHeaders}
         data={tableData}
         totalData={dataListBooking?.data.metadata.count ?? 0}
