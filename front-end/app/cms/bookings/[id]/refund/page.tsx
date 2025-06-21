@@ -110,7 +110,7 @@ export default function RefundBooking() {
 
       if (!response.ok) {
         // Attach the JSON error message if needed
-        throw new Error(json.message || 'Upload field photo failed')
+        throw new Error(json.message || 'Upload refund proof photo failed')
       }
 
       return json
