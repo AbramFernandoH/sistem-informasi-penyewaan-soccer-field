@@ -90,4 +90,44 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     }
 });
 
+router.get('/:paymentId/detail', requireAuth('cms'), async (req, res) => {
+    try {
+        const payment = await Payment.findById(req.params.paymentId).populate([
+            {
+                path: 'booking',
+                populate: {
+                    path: 'field',
+                    model: 'Field',
+                },
+            },
+            {
+                path: 'user',
+                model: 'User',
+            },
+        ]);
+
+        if (payment !== null) {
+            return res.status(200).json({
+                code: 200,
+                success: true,
+                message: 'OK',
+                data: payment,
+            });
+        } else {
+            return res.status(404).json({
+                code: 404,
+                success: false,
+                message: 'Not found',
+                data: null,
+            });
+        }
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get detail payment',
+        });
+    }
+});
+
 module.exports = router;
