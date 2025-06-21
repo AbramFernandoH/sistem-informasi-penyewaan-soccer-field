@@ -6,14 +6,21 @@ import { useForm } from 'react-hook-form'
 import FormInput from '@/components/cms/FormInput'
 import FormLabel from '@/components/cms/FormLabel'
 import ImageUploader from '@/components/cms/ImageUploader'
-import { CreateEditFieldRequest, DetailAssetResponse, DetailFieldResponse, UploadAssetRequest } from '@/utils/type'
-import { cleanNumber, fetchWithAuth } from '@/utils/helper'
-import { useMutation } from '@tanstack/react-query'
+import {
+  DetailAssetResponse,
+  DetailBookingResponse,
+  DetailFieldResponse,
+  RefundBookingRequest,
+  UploadAssetRequest,
+} from '@/utils/type'
+import { fetchWithAuth } from '@/utils/helper'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
-export default function CreateField() {
+export default function RefundBooking() {
   const router = useRouter()
   const params = useParams()
 
@@ -24,21 +31,40 @@ export default function CreateField() {
     setValue,
     clearErrors,
     formState: { errors },
-  } = useForm<CreateEditFieldRequest>({
+  } = useForm<RefundBookingRequest>({
     defaultValues: {
-      name: '',
-      pricePerHour: '',
-      photo: '',
+      refundNote: '',
+      refundProof: '',
+    },
+  })
+
+  const { data: dataDetailBooking, isSuccess: isSuccessDetailBooking } = useQuery<
+    unknown,
+    unknown,
+    DetailBookingResponse
+  >({
+    queryKey: ['booking', params.id],
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const res = await fetchWithAuth('cms', `${ENV.API_URL}/bookings/${params.id}`)
+
+      if (!res.ok) {
+        const errorData = await res.json()
+
+        throw new Error(errorData.message || 'Failed to get detail booking')
+      }
+
+      return res.json()
     },
   })
 
   const {
-    isPending: isPendingCreateField,
-    isSuccess: isSuccessCreateField,
-    mutate: mutateCreateField,
-  } = useMutation<DetailFieldResponse, unknown, CreateEditFieldRequest>({
+    isPending: isPendingRefundBooking,
+    isSuccess: isSuccessRefundBooking,
+    mutate: mutateRefundBooking,
+  } = useMutation<DetailFieldResponse, unknown, RefundBookingRequest>({
     mutationFn: async (data) => {
-      const response = await fetchWithAuth('cms', `${ENV.API_URL}/fields/add`, {
+      const response = await fetchWithAuth('cms', `${ENV.API_URL}/bookings/${params.id}/refund`, {
         method: 'POST',
         body: JSON.stringify(data),
       })
@@ -47,22 +73,22 @@ export default function CreateField() {
 
       if (!response.ok) {
         // Attach the JSON error message if needed
-        throw new Error(json.message || 'Create field failed')
+        throw new Error(json.message || 'Refund booking failed')
       }
 
       return json
     },
     onSuccess: () => {
-      toast.success('Lapangan berhasil ditambahkan')
+      toast.success('Booking berhasil di refund')
 
-      router.push('/cms/fields')
+      router.push(breadcrumbsPages[1].path)
     },
     onError: () => {
-      toast.error('Gagal menambahkan lapangan')
+      toast.error('Gagal refund booking')
     },
   })
 
-  const { isPending: isPendingUploadFieldPhoto, mutate: mutateUploadFieldPhoto } = useMutation<
+  const { isPending: isPendingUploadRefundProofPhoto, mutate: mutateUploadRefundProofPhoto } = useMutation<
     DetailAssetResponse,
     unknown,
     UploadAssetRequest
@@ -86,12 +112,12 @@ export default function CreateField() {
       return json
     },
     onSuccess: (data) => {
-      toast.success('Foto lapangan berhasil ditambahkan')
+      toast.success('Foto bukti refund berhasil ditambahkan')
 
-      setValue('photo', data.data.imageUrl)
+      setValue('refundProof', data.data.imageUrl)
     },
     onError: () => {
-      toast.error('Gagal menambahkan foto lapangan')
+      toast.error('Gagal menambahkan foto bukti refund')
     },
   })
 
@@ -102,24 +128,31 @@ export default function CreateField() {
   ]
 
   const handleDropImage = async (droppedFile: File) => {
-    mutateUploadFieldPhoto({
+    mutateUploadRefundProofPhoto({
       contentType: droppedFile.type,
       file: droppedFile,
     })
 
-    clearErrors('photo')
+    clearErrors('refundProof')
   }
 
   const handleRemoveImage = () => {
-    setValue('photo', '')
+    setValue('refundProof', '')
   }
 
-  const onSubmit = (data: CreateEditFieldRequest) => {
-    mutateCreateField({
-      ...data,
-      pricePerHour: cleanNumber(data.pricePerHour) as unknown as string,
-    })
+  const onSubmit = (data: RefundBookingRequest) => {
+    mutateRefundBooking(data)
   }
+
+  useEffect(() => {
+    if (
+      isSuccessDetailBooking &&
+      dataDetailBooking &&
+      !['half_paid', 'fully_paid'].includes(dataDetailBooking.data.status)
+    ) {
+      router.push(breadcrumbsPages[1].path)
+    }
+  }, [isSuccessDetailBooking, dataDetailBooking, router, breadcrumbsPages])
 
   return (
     <CMSLayout pages={breadcrumbsPages}>
@@ -134,8 +167,8 @@ export default function CreateField() {
       >
         <FormInput
           control={control}
-          id='name'
-          name='name'
+          id='refundNote'
+          name='refundNote'
           type='text'
           label='Catatan'
           placeholder='Ketikan catatan/alasan refund booking'
@@ -153,12 +186,12 @@ export default function CreateField() {
         <div className='flex flex-col space-y-2 w-full'>
           <FormLabel
             label='Bukti Transfer'
-            name='photo'
+            name='refundProof'
           />
 
           <ImageUploader
             control={control}
-            name='photo'
+            name='refundProof'
             label='Foto Bukti Transfer Refund'
             placeholder='Klik untuk mengupload atau drag foto ke inputan ini'
             rules={{
@@ -170,14 +203,14 @@ export default function CreateField() {
             errors={errors}
             handleDrop={handleDropImage}
             handleRemove={handleRemoveImage}
-            uploading={isPendingUploadFieldPhoto}
+            uploading={isPendingUploadRefundProofPhoto}
           />
         </div>
 
         <button
           type='submit'
           className='flex items-center space-x-2 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-300 disabled:cursor-not-allowed'
-          disabled={isPendingCreateField || isSuccessCreateField || isPendingUploadFieldPhoto}
+          disabled={isPendingRefundBooking || isSuccessRefundBooking || isPendingUploadRefundProofPhoto}
         >
           Submit
         </button>

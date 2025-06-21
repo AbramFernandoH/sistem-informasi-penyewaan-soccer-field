@@ -117,16 +117,9 @@ export type Payment = {
   status: 'pending' | 'success' | 'failure'
   orderId: string
   transactionTime: string
-  refundStatus: 'not_requested' | 'refunded_manually' | null
-  refundProof: string | null
-  refundNote: string | null
 }
 
 export type ListPaymentResponse = ListBaseResponse<Payment>
-export type ListPaymentRequest = Partial<{
-  skip: number
-  bookingId: string
-}>
 
 // Booking
 
@@ -142,6 +135,9 @@ export type Booking = {
   field: Field
   user: User | null
   payments: Payment[]
+  refundStatus: 'not_requested' | 'refunded_manually' | null
+  refundProof: string | null
+  refundNote: string | null
 }
 
 export type ListBookingResponse = ListBaseResponse<Booking>
@@ -150,3 +146,8 @@ export type ListBookingRequest = {
 }
 
 export type DetailBookingResponse = BaseResponse<Booking>
+
+export type RefundBookingRequest = {
+  refundNote: string
+  refundProof: string
+}
