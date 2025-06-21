@@ -34,6 +34,35 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     }
 })
 
+router.get('/:reportId', requireAuth('cms'), async (req, res) => {
+    try {
+        const report = await Report.findById(req.params.reportId);
+
+        if (report !== null) {
+            return res.status(200).json({
+                code: 200,
+                message: 'OK',
+                success: true,
+                data: report,
+            });
+        } else {
+            return res.status(404).json({
+                code: 404,
+                success: false,
+                message: 'Not found',
+                data: null,
+            });
+        }
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get detail report',
+            data: null,
+        });
+    }
+})
+
 router.post('/add', requireAuth('cms'), async (req, res) => {
     try {
         const data = await Report.create(req.body);
