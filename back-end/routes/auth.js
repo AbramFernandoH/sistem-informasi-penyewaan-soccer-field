@@ -97,7 +97,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.put('/refresh', requireAuth('pwa'), async (req, res) => {
+router.put('/refresh', async (req, res) => {
     const refreshToken = String(req.body.refreshToken).replace('Bearer ', '')
 
     if (refreshToken === 'undefined') {
