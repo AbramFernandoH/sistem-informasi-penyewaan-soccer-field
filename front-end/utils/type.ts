@@ -160,9 +160,17 @@ export type Report = {
   type: 'income' | 'expense'
   totalPrice: number
   booking: Booking | null
+  createdBy: Admin | null
+  attachment: string
 }
 
 export type ListReportResponse = ListBaseResponse<Report>
 export type ListReportRequest = {
   skip: number
+}
+
+export type DetailReportResponse = BaseResponse<Report>
+
+export type CreateEditReportRequest = Omit<Report, '_id' | 'totalPrice' | 'booking' | 'createdBy'> & {
+  totalPrice: string
 }
