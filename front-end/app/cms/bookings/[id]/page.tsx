@@ -8,7 +8,7 @@ import DetailCard from '@/components/cms/DetailCard'
 import DetailCardTexts from '@/components/cms/DetailCardTexts'
 import DetailCardTable from '@/components/cms/DetailCardTable'
 import ConfirmationModal from '@/components/ConfirmationModal'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { DetailBookingResponse, ListPaymentResponse } from '@/utils/type'
 import { fetchWithAuth, formatToRupiah, hasTimeSlotEnded, timeSlotsString } from '@/utils/helper'
@@ -118,6 +118,27 @@ export default function DetailPayment() {
   const handleClickOpenConfirmationModal = () => {
     setOpenCreateSecondPaymentModal(true)
   }
+
+  const showSecondPaymentButton = useMemo(
+    () =>
+      !!(
+        dataDetailBooking &&
+        dataDetailBooking.data.status === 'half_paid' &&
+        dataDetailBooking.data.payments.length === 1
+      ),
+    [dataDetailBooking]
+  )
+
+  const showRefundButton = useMemo(
+    () =>
+      !!(
+        dataDetailBooking &&
+        ['half_paid', 'fully_paid'].includes(dataDetailBooking.data.status) &&
+        hasTimeSlotEnded(dataDetailBooking.data.orderDate, dataDetailBooking.data.timeSlots) &&
+        dataDetailBooking.data.payments.some((payment) => payment.status === 'success')
+      ),
+    [dataDetailBooking]
+  )
 
   useEffect(() => {
     if (isSuccessListPayment && dataListPayment && dataListPayment.data) {
@@ -249,10 +270,9 @@ export default function DetailPayment() {
             data={tableData}
           />
 
-          <div className='flex items-center justify-end space-x-4 border-t border-solid border-gray-300 pt-6'>
-            {dataDetailBooking &&
-              dataDetailBooking.data.status === 'half_paid' &&
-              dataDetailBooking.data.payments.length === 1 && (
+          {(showSecondPaymentButton || showRefundButton) && (
+            <div className='flex items-center justify-end space-x-4 border-t border-solid border-gray-300 pt-6'>
+              {showSecondPaymentButton && (
                 <button
                   type='button'
                   className='rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
@@ -262,18 +282,16 @@ export default function DetailPayment() {
                 </button>
               )}
 
-            {dataDetailBooking &&
-              ['half_paid', 'fully_paid'].includes(dataDetailBooking.data.status) &&
-              hasTimeSlotEnded(dataDetailBooking.data.orderDate, dataDetailBooking.data.timeSlots) &&
-              dataDetailBooking.data.payments.some((payment) => payment.status === 'success') && (
+              {showRefundButton && (
                 <Link
-                  href={`/cms/bookings/${dataDetailBooking.data._id}/refund`}
+                  href={`/cms/bookings/${dataDetailBooking?.data._id ?? ''}/refund`}
                   className='rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
                 >
                   Refund
                 </Link>
               )}
-          </div>
+            </div>
+          )}
         </DetailCard>
       </CMSLayout>
 
