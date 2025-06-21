@@ -7,6 +7,7 @@ import FormInput from '@/components/cms/FormInput'
 import FormLabel from '@/components/cms/FormLabel'
 import ImageUploader from '@/components/cms/ImageUploader'
 import {
+  Admin,
   DetailAssetResponse,
   DetailBookingResponse,
   DetailFieldResponse,
@@ -19,10 +20,13 @@ import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { adminProfileStore } from '@/stores/adminProfile'
 
 export default function RefundBooking() {
   const router = useRouter()
   const params = useParams()
+
+  const adminProfile = adminProfileStore((state) => state.admin)
 
   const {
     handleSubmit,
@@ -62,7 +66,7 @@ export default function RefundBooking() {
     isPending: isPendingRefundBooking,
     isSuccess: isSuccessRefundBooking,
     mutate: mutateRefundBooking,
-  } = useMutation<DetailFieldResponse, unknown, RefundBookingRequest>({
+  } = useMutation<DetailFieldResponse, unknown, RefundBookingRequest & { admin: Admin | null }>({
     mutationFn: async (data) => {
       const response = await fetchWithAuth('cms', `${ENV.API_URL}/bookings/${params.id}/refund`, {
         method: 'POST',
@@ -141,7 +145,10 @@ export default function RefundBooking() {
   }
 
   const onSubmit = (data: RefundBookingRequest) => {
-    mutateRefundBooking(data)
+    mutateRefundBooking({
+      ...data,
+      admin: adminProfile,
+    })
   }
 
   useEffect(() => {
