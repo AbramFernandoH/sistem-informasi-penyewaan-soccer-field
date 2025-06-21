@@ -151,3 +151,18 @@ export type RefundBookingRequest = {
   refundNote: string
   refundProof: string
 }
+
+// Report
+
+export type Report = {
+  _id: string
+  name: string
+  type: 'income' | 'expense'
+  totalPrice: number
+  booking: Booking | null
+}
+
+export type ListReportResponse = ListBaseResponse<Report>
+export type ListReportRequest = {
+  skip: number
+}

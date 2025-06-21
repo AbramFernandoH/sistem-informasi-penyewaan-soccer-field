@@ -82,7 +82,7 @@ const Table: FC<TableProps> = ({
                       {tableData.map((t, tIdx) => (
                         <td
                           key={`${idx}-${tIdx}`}
-                          className={`whitespace-nowrap py-4 pl-4 ${tIdx === 0 ? 'pr-3 sm:pl-0' : tIdx + 1 === data.length ? 'pl-3 pr-4 sm:pr-0' : ''} text-sm font-medium text-gray-500`}
+                          className={`py-4 pl-4 ${tIdx === 0 ? 'pr-3 sm:pl-0' : tIdx + 1 === data.length ? 'pl-3 pr-4 sm:pr-0' : ''} text-sm font-medium text-gray-500`}
                         >
                           {t}
                         </td>
