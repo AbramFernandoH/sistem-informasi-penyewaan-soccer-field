@@ -412,6 +412,7 @@ router.post('/:bookingId/refund', async (req, res) => {
             totalPrice: totalPaid,
             booking: booking._id,
             createdBy: admin,
+            attachment: refundProof,
         });
 
         // Delete schedule entry if it exists
