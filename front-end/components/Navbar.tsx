@@ -70,6 +70,13 @@ const Navbar = () => {
     },
   ]
 
+  const loggedLinks = [
+    {
+      url: '/bookings',
+      name: 'Booking Saya',
+    },
+  ]
+
   const authLinks = [
     {
       url: '/login',
@@ -127,7 +134,7 @@ const Navbar = () => {
 
             <div className='hidden ml-10 md:flex space-x-8'>
               {/* Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" */}
-              {links.map((link) => (
+              {(user === null ? links : [...links, ...loggedLinks]).map((link) => (
                 <Link
                   key={link.url}
                   href={link.url}
@@ -217,7 +224,7 @@ const Navbar = () => {
       <DisclosurePanel className='lg:hidden'>
         <div className='space-y-1 pb-4 pt-2'>
           {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700" */}
-          {(user === null ? [...links, ...authLinks] : links).map((link) => (
+          {(user === null ? [...links, ...authLinks] : [...links, ...loggedLinks]).map((link) => (
             <DisclosureButton
               key={link.url}
               href={link.url}
