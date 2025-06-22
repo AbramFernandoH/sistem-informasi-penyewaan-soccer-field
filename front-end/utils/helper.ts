@@ -2,7 +2,7 @@ import { COOKIES, ENV, timeSlots } from '@/utils/constants'
 import { BaseResponse } from '@/utils/type'
 import { KeyboardEvent } from 'react'
 import { formatCurrency } from '@/utils/formatter'
-import { isBefore, isToday, parse } from 'date-fns'
+import { differenceInCalendarDays, isBefore, isToday, parse, parseISO, startOfDay } from 'date-fns'
 
 // Set a cookie with a name, value, and expiration in days
 export const setCookie = (name: string, value: string, days: number) => {
@@ -170,4 +170,11 @@ export const hasTimeSlotEnded = (orderDate: string, selectedSlots: number[]) => 
   const now = new Date()
 
   return isBefore(now, endDateTime)
+}
+
+export const isThreeDaysOrMoreInFuture = (selectedIso: string) => {
+  const selectedDate = startOfDay(parseISO(selectedIso))
+  const currentDate = startOfDay(parseISO(new Date().toISOString()))
+
+  return differenceInCalendarDays(selectedDate, currentDate) >= 3
 }

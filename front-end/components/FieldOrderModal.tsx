@@ -3,17 +3,47 @@ import { FC, useEffect, useState } from 'react'
 import Modal from '@/components/Modal'
 import DatePicker from '@/components/DatePicker'
 import TimeDropdown from '@/components/TimeDropdown'
-import { DropdownOption } from '@/components/cms/Dropdown'
+import Dropdown, { DropdownOption } from '@/components/cms/Dropdown'
 import FormInput from '@/components/cms/FormInput'
 import { useForm } from 'react-hook-form'
 import { userProfileStore } from '@/stores/userProfile'
 import { CreateBookingRequest, CreateBookingResponse, ListScheduleRequest, ListScheduleResponse } from '@/utils/type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { allowOnlyNumbers, isTimeSlotExpired } from '@/utils/helper'
+import { allowOnlyNumbers, fetchWithAuth, isThreeDaysOrMoreInFuture, isTimeSlotExpired } from '@/utils/helper'
 import { ENV } from '@/utils/constants'
 import { isToday } from 'date-fns'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import FormLabel from '@/components/cms/FormLabel'
+
+const isUpfrontDisabledOptions = [
+  {
+    xid: 'false',
+    value: 'Lunas',
+    selected: true,
+    disabled: false,
+  },
+  {
+    xid: 'true',
+    value: 'DP 50%',
+    selected: false,
+    disabled: true,
+  },
+]
+
+const isUpfrontDefaultOptions = [
+  {
+    xid: 'false',
+    value: 'Lunas',
+    selected: true,
+    disabled: false,
+  },
+  {
+    xid: 'true',
+    value: 'DP 50%',
+    selected: false,
+    disabled: false,
+  },
+]
 
 type FieldOrderModalProps = {
   fieldId: string
@@ -24,12 +54,13 @@ type FieldOrderModalProps = {
 
 const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen, closeModal }) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   const user = userProfileStore((state) => state.user)
 
   const [timeOptions, setTimeOptions] = useState<DropdownOption[]>([])
   const [resetTime, setResetTime] = useState(false)
+  const [isOpenUpfrontDropdown, setIsOpenUpfrontDropdown] = useState(false)
+  const [isUpfrontOptions, setIsUpfrontOptions] = useState<DropdownOption[]>(isUpfrontDefaultOptions)
 
   const {
     handleSubmit,
@@ -38,6 +69,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
     setValue,
     watch,
     clearErrors,
+    reset: resetForm,
     formState: { errors },
   } = useForm<CreateBookingRequest>({
     defaultValues: {
@@ -73,19 +105,28 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
   })
 
   const {
-    isPending: isPendingCreateGuestBooking,
-    isSuccess: isSuccessCreateGuestBooking,
-    reset: resetCreateGuestBooking,
-    mutate: mutateCreateGuestBooking,
+    isPending: isPendingCreateBooking,
+    isSuccess: isSuccessCreateBooking,
+    reset: resetCreateBooking,
+    mutate: mutateCreateBooking,
   } = useMutation<CreateBookingResponse, unknown, CreateBookingRequest>({
     mutationFn: async (data) => {
-      const response = await fetch(`${ENV.API_URL}/bookings/add-guest-transaction`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      let response
+
+      if (user === null) {
+        response = await fetch(`${ENV.API_URL}/bookings/add-guest-transaction`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+      } else {
+        response = await fetchWithAuth('pwa', `${ENV.API_URL}/bookings/add-registered-first-transaction`, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        })
+      }
 
       const json = await response.json()
 
@@ -102,14 +143,41 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
 
       toast.success('Booking lapangan berhasil')
 
-      resetCreateGuestBooking()
+      resetCreateBooking()
 
-      router.push(response.data.redirect_url)
+      window.open(response.data.redirect_url, '_blank')
+
+      setIsUpfrontOptions(isUpfrontDefaultOptions)
+
+      resetForm()
+
+      closeModal()
     },
     onError: () => {
       toast.error('Gagal membuat booking lapangan')
     },
   })
+
+  const handleCloseModal = () => {
+    if (!isPendingCreateBooking && !isSuccessCreateBooking) {
+      closeModal()
+    }
+  }
+
+  const handleChangeSelectedUpfront = (newSelectedOption: DropdownOption) => {
+    const newOptions = isUpfrontOptions.map((option) => ({ ...option, selected: false }))
+    const selectedIndex = newOptions.findIndex((option) => option.xid === newSelectedOption.xid)
+
+    if (selectedIndex !== -1) {
+      newOptions.splice(selectedIndex, 1, { ...newSelectedOption, selected: true })
+
+      setIsUpfrontOptions(newOptions)
+
+      setValue('isUpfront', newSelectedOption.xid === 'true')
+    }
+
+    setIsOpenUpfrontDropdown(false)
+  }
 
   const handleClickTimeDropdown = (option: DropdownOption[]) => {
     clearErrors('timeSlots')
@@ -125,14 +193,28 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
     setValue('timeSlots', [0])
     setResetTime(!resetTime)
 
+    if (!isThreeDaysOrMoreInFuture(date)) {
+      setIsUpfrontOptions(isUpfrontDisabledOptions)
+
+      setValue('isUpfront', false)
+    } else {
+      setIsUpfrontOptions(isUpfrontDefaultOptions)
+    }
+
     setValue('orderDate', date)
   }
 
   const onSubmit = (data: CreateBookingRequest) => {
     if (user === null) {
-      mutateCreateGuestBooking({
+      mutateCreateBooking({
         ...data,
         field: fieldId,
+      })
+    } else {
+      mutateCreateBooking({
+        ...data,
+        field: fieldId,
+        user: user._id,
       })
     }
   }
@@ -160,14 +242,18 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
     }
   }, [isSuccessListSchedule, dataListSchedule, fieldId, orderDate])
 
+  useEffect(() => {
+    if (user !== null && isOpen) {
+      setValue('name', user.fullName)
+      setValue('email', user.email)
+      setValue('telephoneNumber', user.telephoneNumber)
+    }
+  }, [setValue, user, isOpen])
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => {
-        if (!isPendingCreateGuestBooking && !isSuccessCreateGuestBooking) {
-          closeModal()
-        }
-      }}
+      onClose={handleCloseModal}
       className='!w-[calc(100vw-32px)] sm:max-w-[600px] lg:max-w-[584px] p-5 lg:p-10'
     >
       <h4 className='mb-6 text-lg font-medium text-gray-800 w-[calc(100%-30px)] lg:w-full'>
@@ -194,6 +280,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
               },
             }}
             errors={errors}
+            disabled={user !== null}
             wrapperClassName='w-full'
           />
         </div>
@@ -218,6 +305,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
               },
             }}
             errors={errors}
+            disabled={user !== null}
             wrapperClassName='w-full'
           />
 
@@ -250,6 +338,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
             maxLength={15}
             errors={errors}
             onKeyDown={allowOnlyNumbers}
+            disabled={user !== null}
             wrapperClassName='w-full'
           />
         </div>
@@ -305,6 +394,23 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
           </div>
         </div>
 
+        {user !== null && (
+          <div className='flex flex-col space-y-2 w-full'>
+            <FormLabel
+              label='Pilihan DP / Lunas'
+              name='isUpfront'
+            />
+
+            <Dropdown
+              isOpen={isOpenUpfrontDropdown}
+              setIsOpen={setIsOpenUpfrontDropdown}
+              options={isUpfrontOptions}
+              handleClickOption={handleChangeSelectedUpfront}
+              disabled={orderDate.length == 0}
+            />
+          </div>
+        )}
+
         <div className='w-full flex items-center space-x-2'>
           {user !== null && (
             <button
@@ -319,7 +425,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
           <button
             type='submit'
             className='w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
-            disabled={isPendingCreateGuestBooking || isSuccessCreateGuestBooking}
+            disabled={isPendingCreateBooking || isSuccessCreateBooking}
           >
             Checkout
           </button>
