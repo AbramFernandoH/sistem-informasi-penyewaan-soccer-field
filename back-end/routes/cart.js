@@ -5,7 +5,7 @@ const { requireAuth } = require('../middleware');
 
 router.get('/', requireAuth('pwa'), async (req, res) => {
     try {
-        const listCart = await Cart.find({});
+        const listCart = await Cart.find({}).populate('field');
         const totalCart = await Cart.countDocuments({});
         const metadata = {
             count: totalCart,
