@@ -5,23 +5,25 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Script from 'next/script'
 import { usePathname, useRouter } from 'next/navigation'
-import { userProfileStore } from '@/stores/userProfile'
+import { getCookie } from '@/utils/helper'
+import { COOKIES } from '@/utils/constants'
 
 type PwaLayoutProps = {
   children: ReactNode
 }
 
 const PwaLayout: FC<PwaLayoutProps> = ({ children }) => {
-  const { user } = userProfileStore((state) => state)
-
   const pathname = usePathname()
   const router = useRouter()
 
   useEffect(() => {
-    if (pathname.includes('/bookings') && user === null) {
+    const accessToken = getCookie(COOKIES.USER_ACCESS_TOKEN)
+    const refreshToken = getCookie(COOKIES.USER_ACCESS_TOKEN)
+
+    if (pathname.includes('/bookings') && accessToken === null && refreshToken === null) {
       router.push('/')
     }
-  }, [pathname, router, user])
+  }, [pathname, router])
 
   return (
     <>
