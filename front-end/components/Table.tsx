@@ -28,7 +28,7 @@ const Table: FC<TableProps> = ({
 }) => {
   return (
     <>
-      <div className='mt-8 flow-root'>
+      <div className='mt-8 flow-root px-4 lg:px-0'>
         <div className='-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
           <div className='inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8'>
             {data.length > 0 ? (
