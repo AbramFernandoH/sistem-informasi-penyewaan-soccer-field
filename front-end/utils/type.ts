@@ -192,3 +192,33 @@ export type DetailReportResponse = BaseResponse<Report>
 export type CreateEditReportRequest = Omit<Report, '_id' | 'totalPrice' | 'booking' | 'createdBy'> & {
   totalPrice: string
 }
+
+// Cart
+
+export type Cart = {
+  _id: string
+  cartId: string
+  name: string
+  email: string
+  telephoneNumber: string
+  orderDate: string
+  timeSlots: number[]
+  price: number
+  user: string
+  field: Field
+}
+
+export type ListCartResponse = ListBaseResponse<Cart>
+
+export type DetailCartResponse = BaseResponse<Cart>
+
+export type CreateCartRequest = {
+  user: string
+  field: string
+  orderDate: string
+  timeSlots: number[]
+  name: string
+  email: string
+  telephoneNumber: string
+  price: number
+}

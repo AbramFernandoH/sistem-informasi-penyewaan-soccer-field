@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteCookie, fetchWithAuth } from '@/utils/helper'
 import { COOKIES, ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
+import { cartStore } from '@/stores/cart'
 
 const Navbar = () => {
   const pathname = usePathname()
@@ -16,6 +17,7 @@ const Navbar = () => {
   const queryClient = useQueryClient()
 
   const { user, resetUserProfile } = userProfileStore((state) => state)
+  const cart = cartStore((state) => state.cart)
 
   const { isPending, isSuccess, mutate } = useMutation({
     mutationFn: async () => {
@@ -73,7 +75,7 @@ const Navbar = () => {
   const loggedLinks = [
     {
       url: '/bookings',
-      name: 'Booking Saya',
+      name: 'List Booking',
     },
   ]
 
@@ -159,10 +161,11 @@ const Navbar = () => {
                   >
                     <ShoppingCartIcon className='size-6 md:size-8' />
 
-                    {/* TODO: change hidden class to flex, when cart api is implemented */}
-                    <span className='absolute -top-2.5 -right-2.5 bg-red-600 text-white p-2 rounded-full h-6 w-6 hidden justify-center items-center'>
-                      9+
-                    </span>
+                    {cart.length > 0 && (
+                      <span className='absolute -top-2.5 -right-2.5 bg-red-600 text-white p-2 rounded-full h-6 w-6 flex justify-center items-center'>
+                        {cart.length > 10 ? '9+' : cart.length}
+                      </span>
+                    )}
                   </Link>
                 </div>
               </Menu>

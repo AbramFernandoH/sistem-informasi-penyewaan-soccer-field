@@ -97,6 +97,7 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
           closeModal={handleClickCloseModal}
           fieldName={selectedField.title}
           fieldId={selectedField.id}
+          fieldPrice={selectedField.price}
         />
       </div>
     </section>

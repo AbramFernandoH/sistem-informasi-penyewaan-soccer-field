@@ -1,5 +1,5 @@
 'use client'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import Modal from '@/components/Modal'
 import DatePicker from '@/components/DatePicker'
 import TimeDropdown from '@/components/TimeDropdown'
@@ -7,7 +7,14 @@ import Dropdown, { DropdownOption } from '@/components/cms/Dropdown'
 import FormInput from '@/components/cms/FormInput'
 import { useForm } from 'react-hook-form'
 import { userProfileStore } from '@/stores/userProfile'
-import { CreateBookingRequest, CreateBookingResponse, ListScheduleRequest, ListScheduleResponse } from '@/utils/type'
+import {
+  CreateBookingRequest,
+  CreateBookingResponse,
+  CreateCartRequest,
+  DetailCartResponse,
+  ListScheduleRequest,
+  ListScheduleResponse,
+} from '@/utils/type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { allowOnlyNumbers, fetchWithAuth, isThreeDaysOrMoreInFuture, isTimeSlotExpired } from '@/utils/helper'
 import { ENV } from '@/utils/constants'
@@ -48,14 +55,16 @@ const isUpfrontDefaultOptions = [
 type FieldOrderModalProps = {
   fieldId: string
   fieldName: string
+  fieldPrice: number
   isOpen: boolean
   closeModal: () => void
 }
 
-const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen, closeModal }) => {
+const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPrice, isOpen, closeModal }) => {
   const queryClient = useQueryClient()
 
   const user = userProfileStore((state) => state.user)
+  // const addCartItem = cartStore((state) => state.addCartItem)
 
   const [timeOptions, setTimeOptions] = useState<DropdownOption[]>([])
   const [resetTime, setResetTime] = useState(false)
@@ -69,6 +78,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
     setValue,
     watch,
     clearErrors,
+    getValues,
     reset: resetForm,
     formState: { errors },
   } = useForm<CreateBookingRequest>({
@@ -76,7 +86,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
       name: '',
       email: '',
       telephoneNumber: '',
-      field: fieldId,
+      field: '',
       orderDate: '',
       timeSlots: [0],
     },
@@ -132,7 +142,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
 
       if (!response.ok) {
         // Attach the JSON error message if needed
-        throw new Error(json.message || 'Add guest booking')
+        throw new Error(json.message || 'Failed to add booking')
       }
 
       return json
@@ -158,8 +168,60 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
     },
   })
 
+  const {
+    isPending: isPendingAddCart,
+    isSuccess: isSuccessAddCart,
+    mutate: mutateAddCart,
+  } = useMutation<DetailCartResponse, unknown, CreateCartRequest>({
+    mutationFn: async (data) => {
+      const response = await fetchWithAuth('pwa', `${ENV.API_URL}/carts/add`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      })
+
+      const json = await response.json()
+
+      if (!response.ok) {
+        // Attach the JSON error message if needed
+        throw new Error(json.message || 'Failed to add item to cart')
+      }
+
+      return json
+    },
+    onSuccess: async () => {
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ['cart'] })
+
+      toast.success('Berhasil menambahkan item ke keranjang')
+
+      // addCartItem(response.data)
+
+      setIsUpfrontOptions(isUpfrontDefaultOptions)
+
+      resetForm()
+
+      closeModal()
+    },
+    onError: () => {
+      toast.error('Gagal menambahkan item ke keranjang')
+    },
+  })
+
+  const isDisabled = useMemo(
+    () => isPendingCreateBooking || isSuccessCreateBooking || isPendingAddCart || isSuccessAddCart,
+    [isPendingCreateBooking, isSuccessCreateBooking, isPendingAddCart, isSuccessAddCart]
+  )
+
+  const isAllFilled = useMemo(() => {
+    const name = getValues('name')
+    const email = getValues('email')
+    const telephoneNumber = getValues('telephoneNumber')
+
+    return [name, email, telephoneNumber, orderDate].every((value) => value.length > 0)
+  }, [getValues, orderDate])
+
   const handleCloseModal = () => {
-    if (!isPendingCreateBooking && !isSuccessCreateBooking) {
+    if (!isPendingCreateBooking && !isSuccessCreateBooking && !isPendingAddCart && !isSuccessAddCart) {
       closeModal()
     }
   }
@@ -204,19 +266,34 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
     setValue('orderDate', date)
   }
 
-  const onSubmit = (data: CreateBookingRequest) => {
-    if (user === null) {
-      mutateCreateBooking({
-        ...data,
-        field: fieldId,
-      })
-    } else {
-      mutateCreateBooking({
-        ...data,
-        field: fieldId,
+  const handleClickAddToCart = () => {
+    if (user !== null) {
+      const timeSlots = getValues('timeSlots')
+
+      mutateAddCart({
         user: user._id,
+        field: fieldId,
+        orderDate,
+        timeSlots,
+        name: user.fullName,
+        email: user.email,
+        telephoneNumber: user.telephoneNumber,
+        price: fieldPrice * timeSlots.length,
       })
     }
+  }
+
+  const onSubmit = (data: CreateBookingRequest) => {
+    const payload = {
+      ...data,
+      field: fieldId,
+    }
+
+    if (user !== null) {
+      payload.user = user._id
+    }
+
+    mutateCreateBooking(payload)
   }
 
   useEffect(() => {
@@ -415,17 +492,18 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, isOpen,
           {user !== null && (
             <button
               type='button'
-              className='w-full text-blue-700 bg-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border border-solid border-blue-700 hover:border-blue-700/70 hover:text-blue-700/70'
-              onClick={closeModal}
+              className='w-full text-blue-700 bg-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border border-solid border-blue-700 hover:border-blue-700/70 hover:text-blue-700/70 disabled:border-0 disabled:text-white disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
+              onClick={handleClickAddToCart}
+              disabled={isDisabled || !isAllFilled}
             >
-              Add to cart
+              Tambah ke keranjang
             </button>
           )}
 
           <button
             type='submit'
             className='w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:bg-gray-200 disabled:hover:cursor-not-allowed'
-            disabled={isPendingCreateBooking || isSuccessCreateBooking}
+            disabled={isDisabled}
           >
             Checkout
           </button>
