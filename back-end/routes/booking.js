@@ -13,6 +13,7 @@ const { sha512 } = require('js-sha512')
 const { DateTime } = require('luxon')
 const { timeSlots } = require("../utils/constants");
 const { calculatePaymentAmount } = require("../utils/helper");
+const mongoose = require("mongoose");
 
 router.get('/', requireAuth('cms'), async (req, res) => {
     try {
@@ -44,9 +45,81 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     }
 })
 
+router.get('/:userId/customer', requireAuth('pwa'), async (req, res) => {
+    try {
+        const { skip } = req.query
+        const currentSkip = skip ? Number(skip) : 0
+
+        const { userId } = req.params
+
+        if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                code: 400,
+                success: false,
+                message: 'Invalid booking ID format',
+                data: null,
+            });
+        }
+
+        const filter = { user: userId }
+        const listBooking = await Booking.find(filter).populate('field payments').limit(10).skip(currentSkip);
+        const totalBooking = await Booking.countDocuments(filter);
+
+        return res.status(200).json({
+            code: 200,
+            success: true,
+            message: 'OK',
+            data: {
+                items: listBooking,
+                metadata: {
+                    limit: 10,
+                    skip: currentSkip,
+                    count: totalBooking,
+                },
+            },
+        });
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get list booking',
+            data: null,
+        });
+    }
+})
+
 router.get('/:bookingId', requireAuth('cms'), async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.bookingId).populate('payments field user')
+
+        if (booking !== null) {
+            return res.status(200).json({
+                code: 200,
+                success: true,
+                message: 'OK',
+                data: booking,
+            });
+        } else {
+            return res.status(404).json({
+                code: 404,
+                success: false,
+                message: 'Not found',
+                data: null,
+            });
+        }
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get detail booking',
+            data: null,
+        });
+    }
+})
+
+router.get('/:bookingId/detail', requireAuth('pwa'), async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.bookingId).populate('payments field')
 
         if (booking !== null) {
             return res.status(200).json({
