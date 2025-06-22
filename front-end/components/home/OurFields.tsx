@@ -1,11 +1,17 @@
 'use client'
 import { FC, useState } from 'react'
-import SoccerFieldCard, { SoccerFieldCardProps } from '@/components/home/SoccerFieldCard'
+import SoccerFieldCard from '@/components/home/SoccerFieldCard'
 import FieldOrderModal from '@/components/FieldOrderModal'
 import { useQuery } from '@tanstack/react-query'
 import { ListFieldRequest, ListFieldResponse } from '@/utils/type'
 import { ENV } from '@/utils/constants'
 import Shimmer from '@/components/Shimmer'
+
+type SelectedField = {
+  title: string
+  id: string
+  price: number
+}
 
 type OurFieldsProps = {
   titleClassName?: string
@@ -15,9 +21,9 @@ type OurFieldsProps = {
 const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundColor = '' }) => {
   const [isOpenModal, setIsOpenModal] = useState(false)
 
-  const [selectedField, setSelectedField] = useState<SoccerFieldCardProps>({
-    imgUrl: '',
+  const [selectedField, setSelectedField] = useState<SelectedField>({
     title: '',
+    id: '',
     price: 0,
   })
 
@@ -37,7 +43,7 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
     },
   })
 
-  const handleClickCard = (data: SoccerFieldCardProps) => () => {
+  const handleClickCard = (data: SelectedField) => () => {
     setSelectedField(data)
 
     setIsOpenModal(true)
@@ -58,7 +64,7 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
                 <button
                   key={idx}
                   onClick={handleClickCard({
-                    imgUrl: field.photo,
+                    id: field._id,
                     title: field.name,
                     price: field.pricePerHour,
                   })}
@@ -90,6 +96,7 @@ const OurFields: FC<OurFieldsProps> = ({ titleClassName = '', customBackgroundCo
           isOpen={isOpenModal}
           closeModal={handleClickCloseModal}
           fieldName={selectedField.title}
+          fieldId={selectedField.id}
         />
       </div>
     </section>

@@ -154,6 +154,22 @@ export type RefundBookingRequest = {
   refundProof: string
 }
 
+export type CreateBookingRequest = {
+  name: string
+  email: string
+  telephoneNumber: string
+  orderDate: string
+  timeSlots: number[]
+  field: string
+  user?: string
+  isUpfront?: boolean
+}
+
+export type CreateBookingResponse = BaseResponse<{
+  data: Booking
+  redirect_url: string
+}>
+
 // Report
 
 export type Report = {

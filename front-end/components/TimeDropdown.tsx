@@ -7,6 +7,7 @@ type TimeDropdownProps = {
   disabled?: boolean
   resetSignal?: boolean
   options?: DropdownOption[]
+  isMultiSelect?: boolean
 }
 
 const getInitialTimeOptions = (): DropdownOption[] =>
@@ -16,18 +17,32 @@ const getInitialTimeOptions = (): DropdownOption[] =>
     selected: idx === 0,
   }))
 
-const TimeDropdown: FC<TimeDropdownProps> = ({ setSelectedTime, disabled, resetSignal, options = [] }) => {
+const TimeDropdown: FC<TimeDropdownProps> = ({
+  setSelectedTime,
+  disabled,
+  resetSignal,
+  options = [],
+  isMultiSelect = true,
+}) => {
   const [openTimeDropdown, setOpenTimeDropdown] = useState(false)
   const [timeOptions, setTimeOptions] = useState<DropdownOption[]>(
     options.length > 0 ? options : getInitialTimeOptions()
   )
 
   const handleClickOption = (newSelectedOption: DropdownOption) => {
-    const newOptions = timeOptions.map((option) =>
-      option.xid === newSelectedOption.xid ? { ...option, selected: !option.selected } : option
-    )
-    setTimeOptions(newOptions)
-    setSelectedTime(newOptions.filter((option) => option.selected))
+    if (isMultiSelect) {
+      const newOptions = timeOptions.map((option) =>
+        option.xid === newSelectedOption.xid ? { ...option, selected: !option.selected } : option
+      )
+      setTimeOptions(newOptions)
+      setSelectedTime(newOptions.filter((option) => option.selected))
+    } else {
+      const newOptions = timeOptions.map((option) => ({ ...option, selected: option.xid === newSelectedOption.xid }))
+      setTimeOptions(newOptions)
+      setSelectedTime(newOptions.filter((option) => option.selected))
+
+      setOpenTimeDropdown(false)
+    }
   }
 
   useEffect(() => {
