@@ -154,7 +154,7 @@ const Navbar = () => {
               >
                 <div>
                   <Link
-                    href='/cart'
+                    href='/carts'
                     className='relative flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                   >
                     <ShoppingCartIcon className='size-6 md:size-8' />

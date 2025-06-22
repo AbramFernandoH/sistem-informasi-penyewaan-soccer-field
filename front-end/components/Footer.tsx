@@ -1,8 +1,11 @@
 import React from 'react'
 import NextImg from 'next/image'
 import Link from 'next/link'
+import { userProfileStore } from '@/stores/userProfile'
 
 export default function Footer() {
+  const user = userProfileStore((state) => state.user)
+
   const links = [
     {
       url: '/',
@@ -16,8 +19,11 @@ export default function Footer() {
       url: '/fields',
       name: 'Lapangan Kami',
     },
+  ]
+
+  const loggedLinks = [
     {
-      url: '/cart',
+      url: '/carts',
       name: 'Keranjang',
     },
   ]
@@ -41,7 +47,7 @@ export default function Footer() {
           </Link>
 
           <ul className='flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center mb-0 text-sm font-medium text-gray-400'>
-            {links.map((link) => (
+            {(user === null ? links : [...links, ...loggedLinks]).map((link) => (
               <li key={link.url}>
                 <Link
                   href={link.url}

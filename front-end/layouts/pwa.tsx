@@ -20,7 +20,11 @@ const PwaLayout: FC<PwaLayoutProps> = ({ children }) => {
     const accessToken = getCookie(COOKIES.USER_ACCESS_TOKEN)
     const refreshToken = getCookie(COOKIES.USER_ACCESS_TOKEN)
 
-    if (pathname.includes('/bookings') && accessToken === null && refreshToken === null) {
+    if (
+      (pathname.includes('/bookings') || pathname.includes('/carts')) &&
+      accessToken === null &&
+      refreshToken === null
+    ) {
       router.push('/')
     }
   }, [pathname, router])
