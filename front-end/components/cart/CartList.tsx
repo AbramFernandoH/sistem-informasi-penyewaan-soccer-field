@@ -6,15 +6,19 @@ import { ListCartResponse } from '@/utils/type'
 import { fetchWithAuth } from '@/utils/helper'
 import { ENV } from '@/utils/constants'
 import EmptyState from '@/components/cms/EmptyState'
+import { userProfileStore } from '@/stores/userProfile'
 
 const CartList = () => {
   const [listCart, setListCart] = useState<FieldCardProps[]>([])
 
+  const { user } = userProfileStore((state) => state)
+
   const { data: dataListCart, isSuccess: isSuccessListCart } = useQuery<unknown, unknown, ListCartResponse>({
     queryKey: ['cart'],
     refetchOnWindowFocus: false,
+    enabled: user !== null,
     queryFn: async () => {
-      const res = await fetchWithAuth('pwa', `${ENV.API_URL}/carts`)
+      const res = await fetchWithAuth('pwa', `${ENV.API_URL}/carts/${user?._id ?? ''}`)
 
       if (!res.ok) {
         const errorData = await res.json()

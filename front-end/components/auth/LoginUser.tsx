@@ -67,7 +67,7 @@ export default function LoginUser() {
       setUserProfile(user)
 
       try {
-        const res = await fetchWithAuth('pwa', `${ENV.API_URL}/carts`)
+        const res = await fetchWithAuth('pwa', `${ENV.API_URL}/carts/${user._id}`)
 
         const cartRes = await res.json()
 
