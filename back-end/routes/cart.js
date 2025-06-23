@@ -3,10 +3,10 @@ const router = express.Router();
 const Cart = require('../models/cart');
 const { requireAuth } = require('../middleware');
 
-router.get('/', requireAuth('pwa'), async (req, res) => {
+router.get('/:userId', requireAuth('pwa'), async (req, res) => {
     try {
-        const listCart = await Cart.find({}).populate('field');
-        const totalCart = await Cart.countDocuments({});
+        const listCart = await Cart.find({ user: req.params.userId }).populate('field');
+        const totalCart = await Cart.countDocuments({ user: req.params.userId });
         const metadata = {
             count: totalCart,
         };
