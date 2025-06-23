@@ -8,6 +8,7 @@ import FormInput from '@/components/cms/FormInput'
 import { useForm } from 'react-hook-form'
 import { userProfileStore } from '@/stores/userProfile'
 import {
+  BaseResponse,
   CreateBookingRequest,
   CreateBookingResponse,
   CreateCartRequest,
@@ -21,6 +22,7 @@ import { ENV } from '@/utils/constants'
 import { isToday } from 'date-fns'
 import toast from 'react-hot-toast'
 import FormLabel from '@/components/cms/FormLabel'
+import { cartStore } from '@/stores/cart'
 
 const isUpfrontDisabledOptions = [
   {
@@ -64,7 +66,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
   const queryClient = useQueryClient()
 
   const user = userProfileStore((state) => state.user)
-  // const addCartItem = cartStore((state) => state.addCartItem)
+  const { addCartItem } = cartStore((state) => state)
 
   const [timeOptions, setTimeOptions] = useState<DropdownOption[]>([])
   const [resetTime, setResetTime] = useState(false)
@@ -172,7 +174,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
     isPending: isPendingAddCart,
     isSuccess: isSuccessAddCart,
     mutate: mutateAddCart,
-  } = useMutation<DetailCartResponse, unknown, CreateCartRequest>({
+  } = useMutation<DetailCartResponse, BaseResponse, CreateCartRequest>({
     mutationFn: async (data) => {
       const response = await fetchWithAuth('pwa', `${ENV.API_URL}/carts/add`, {
         method: 'POST',
@@ -188,13 +190,13 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
 
       return json
     },
-    onSuccess: async () => {
+    onSuccess: async (response) => {
       // Invalidate and refetch
       await queryClient.invalidateQueries({ queryKey: ['cart'] })
 
       toast.success('Berhasil menambahkan item ke keranjang')
 
-      // addCartItem(response.data)
+      addCartItem(response.data)
 
       setIsUpfrontOptions(isUpfrontDefaultOptions)
 
@@ -202,8 +204,14 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
 
       closeModal()
     },
-    onError: () => {
-      toast.error('Gagal menambahkan item ke keranjang')
+    onError: (err) => {
+      closeModal()
+
+      if (err.message === 'Cart item already exists') {
+        toast.error('Item sudah ada di keranjang, pilih jadwal atau lapangan lain', { duration: 6000 })
+      } else {
+        toast.error('Gagal menambahkan item ke keranjang')
+      }
     },
   })
 

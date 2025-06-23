@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import FieldCard, { FieldCardProps } from '@/components/cart/Card'
 import { useQuery } from '@tanstack/react-query'
-import { ListAdminRequest, ListCartResponse } from '@/utils/type'
+import { ListCartResponse } from '@/utils/type'
 import { fetchWithAuth } from '@/utils/helper'
 import { ENV } from '@/utils/constants'
 import EmptyState from '@/components/cms/EmptyState'
@@ -10,7 +10,7 @@ import EmptyState from '@/components/cms/EmptyState'
 const CartList = () => {
   const [listCart, setListCart] = useState<FieldCardProps[]>([])
 
-  const { data: dataListCart, isSuccess: isSuccessListCart } = useQuery<ListAdminRequest, unknown, ListCartResponse>({
+  const { data: dataListCart, isSuccess: isSuccessListCart } = useQuery<unknown, unknown, ListCartResponse>({
     queryKey: ['cart'],
     refetchOnWindowFocus: false,
     queryFn: async () => {

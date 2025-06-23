@@ -17,7 +17,7 @@ const Navbar = () => {
   const queryClient = useQueryClient()
 
   const { user, resetUserProfile } = userProfileStore((state) => state)
-  const cart = cartStore((state) => state.cart)
+  const { cart, resetCart } = cartStore((state) => state)
 
   const { isPending, isSuccess, mutate } = useMutation({
     mutationFn: async () => {
@@ -45,6 +45,7 @@ const Navbar = () => {
       deleteCookie(COOKIES.USER_REFRESH_TOKEN)
 
       resetUserProfile()
+      resetCart()
 
       router.push('/')
     },
@@ -181,9 +182,14 @@ const Navbar = () => {
                     <span className='sr-only'>Open user menu</span>
 
                     <div className='flex items-center space-x-2'>
-                      <p className='hidden lg:block'>{user.fullName.split(' ')[0] ?? user.fullName}</p>
+                      <p
+                        className='hidden lg:block max-w-[100px] truncate'
+                        title={user.fullName.split(' ')[0] ?? user.fullName}
+                      >
+                        {user.fullName.split(' ')[0] ?? user.fullName}
+                      </p>
 
-                      <UserCircleIcon className='size-6 md:size-8' />
+                      <UserCircleIcon className='w-6 h-6 md:w-8 md:h-8' />
                     </div>
                   </MenuButton>
                 </div>

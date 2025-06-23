@@ -7,11 +7,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BaseResponse, User } from '@/utils/type'
 import { COOKIES, ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
-import { setCookie } from '@/utils/helper'
+import { fetchWithAuth, setCookie } from '@/utils/helper'
 import { useRouter } from 'next/navigation'
 import { userProfileStore } from '@/stores/userProfile'
 import Link from 'next/link'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { cartStore } from '@/stores/cart'
 
 type LoginResponse = BaseResponse<{
   accessToken: string
@@ -31,6 +32,7 @@ export default function LoginUser() {
   const [isHidePassword, setIsHidePassword] = useState(true)
 
   const setUserProfile = userProfileStore((state) => state.setUserProfile)
+  const { setCartItems } = cartStore((state) => state)
 
   const { isPending, isSuccess, mutate } = useMutation<LoginResponse, BaseResponse, LoginRequest>({
     mutationFn: async (data) => {
@@ -63,6 +65,16 @@ export default function LoginUser() {
       setCookie(COOKIES.USER_REFRESH_TOKEN, refreshToken, 7)
 
       setUserProfile(user)
+
+      try {
+        const res = await fetchWithAuth('pwa', `${ENV.API_URL}/carts`)
+
+        const cartRes = await res.json()
+
+        setCartItems(cartRes.data.items)
+      } catch {
+        toast.error('Gagal memuat keranjang')
+      }
 
       router.push('/')
     },

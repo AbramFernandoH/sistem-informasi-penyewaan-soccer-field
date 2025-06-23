@@ -5,6 +5,7 @@ import { fetchWithAuth, formatToRupiah, timeSlotsString } from '@/utils/helper'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
+import { cartStore } from '@/stores/cart'
 
 export type FieldCardProps = {
   id: string
@@ -18,7 +19,7 @@ export type FieldCardProps = {
 const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, price, id }) => {
   const queryClient = useQueryClient()
 
-  // const deleteCartItem = cartStore((state) => state.deleteCartItem)
+  const deleteCartItem = cartStore((state) => state.deleteCartItem)
 
   const {
     isPending: isPendingDeleteCartItem,
@@ -45,7 +46,7 @@ const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, p
 
       toast.success('Berhasil menghapus item dari keranjang')
 
-      // deleteCartItem(id)
+      deleteCartItem(id)
     },
     onError: () => {
       toast.error('Gagal menghapus item dari keranjang')
