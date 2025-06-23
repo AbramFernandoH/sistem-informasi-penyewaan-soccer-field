@@ -17,7 +17,7 @@ const formattedEmailDate = (isoString) => {
 }
 
 const formatIndonesianDate = (dateString) => {
-    const date = DateTime.fromFormat(dateString, 'yyyy-MM-dd', { zone: 'utc' });
+    const date = DateTime.fromFormat(new Date(dateString).toDateString(), 'ccc LLL dd yyyy', { zone: 'utc' });
 
     if (!date.isValid) return 'Invalid date';
 
