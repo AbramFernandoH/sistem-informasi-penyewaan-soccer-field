@@ -14,9 +14,10 @@ export type FieldCardProps = {
   orderDate: string
   timeSlots: number[]
   price: number
+  isUpfront: boolean
 }
 
-const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, price, id }) => {
+const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, price, id, isUpfront }) => {
   const queryClient = useQueryClient()
 
   const deleteCartItem = cartStore((state) => state.deleteCartItem)
@@ -73,6 +74,8 @@ const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, p
           <p>{format(new Date(orderDate), 'EEEE, dd MMMM yyyy', { locale: indonesianLocale })}</p>
 
           <p>{timeSlotsString(timeSlots)}</p>
+
+          <p>{isUpfront ? 'DP 50%' : 'Dibayar Penuh'}</p>
 
           <p className='font-semibold'>{formatToRupiah(price)}</p>
         </div>

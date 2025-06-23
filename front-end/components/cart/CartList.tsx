@@ -36,6 +36,7 @@ const CartList = () => {
           orderDate: item.orderDate,
           timeSlots: item.timeSlots,
           price: item.price,
+          isUpfront: item.isUpfront,
         }))
       )
     }

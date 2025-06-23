@@ -206,6 +206,7 @@ export type Cart = {
   price: number
   user: string
   field: Field
+  isUpfront: boolean
 }
 
 export type ListCartResponse = ListBaseResponse<Cart>
@@ -221,4 +222,5 @@ export type CreateCartRequest = {
   email: string
   telephoneNumber: string
   price: number
+  isUpfront: boolean
 }

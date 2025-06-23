@@ -27,7 +27,7 @@ import { cartStore } from '@/stores/cart'
 const isUpfrontDisabledOptions = [
   {
     xid: 'false',
-    value: 'Lunas',
+    value: 'Dibayar Penuh',
     selected: true,
     disabled: false,
   },
@@ -42,7 +42,7 @@ const isUpfrontDisabledOptions = [
 const isUpfrontDefaultOptions = [
   {
     xid: 'false',
-    value: 'Lunas',
+    value: 'Dibayar Penuh',
     selected: true,
     disabled: false,
   },
@@ -277,6 +277,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
   const handleClickAddToCart = () => {
     if (user !== null) {
       const timeSlots = getValues('timeSlots')
+      const isUpfront = getValues('isUpfront')
 
       mutateAddCart({
         user: user._id,
@@ -287,6 +288,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
         email: user.email,
         telephoneNumber: user.telephoneNumber,
         price: fieldPrice * timeSlots.length,
+        isUpfront: isUpfront === undefined ? false : isUpfront,
       })
     }
   }
@@ -482,7 +484,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
         {user !== null && (
           <div className='flex flex-col space-y-2 w-full'>
             <FormLabel
-              label='Pilihan DP / Lunas'
+              label='Pilihan DP / Dibayar Penuh'
               name='isUpfront'
             />
 
@@ -493,10 +495,14 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
               handleClickOption={handleChangeSelectedUpfront}
               disabled={orderDate.length == 0}
             />
+
+            <p className='text-xs text-gray-400'>
+              *DP 50% hanya bisa dilakukan untuk booking 3 hari ke depan atau lebih
+            </p>
           </div>
         )}
 
-        <div className='w-full flex items-center space-x-2'>
+        <div className='w-full flex space-x-2'>
           {user !== null && (
             <button
               type='button'
