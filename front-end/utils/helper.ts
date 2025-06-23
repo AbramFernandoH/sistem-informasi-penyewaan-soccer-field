@@ -172,6 +172,21 @@ export const hasTimeSlotEnded = (orderDate: string, selectedSlots: number[]) => 
   return isBefore(now, endDateTime)
 }
 
+export const hasTimeSlotStarted = (orderDate: string, selectedSlots: number[]) => {
+  if (!selectedSlots || selectedSlots.length === 0) return false
+
+  const slotRange = timeSlots[0]
+  const startTie = slotRange.split(' - ')[0] // e.g. '22:00'
+
+  const datePart = orderDate.split('T')[0] // e.g. '2025-06-25'
+  const combinedDateTimeString = `${datePart} ${startTie}`
+
+  const startDateTime = parse(combinedDateTimeString, 'yyyy-MM-dd HH:mm', new Date())
+  const now = new Date()
+
+  return isBefore(startDateTime, now)
+}
+
 export const isThreeDaysOrMoreInFuture = (selectedIso: string) => {
   const selectedDate = startOfDay(parseISO(selectedIso))
   const currentDate = startOfDay(parseISO(new Date().toISOString()))

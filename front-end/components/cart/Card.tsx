@@ -15,9 +15,24 @@ export type FieldCardProps = {
   timeSlots: number[]
   price: number
   isUpfront: boolean
+  isAlreadyPassed: boolean
+  name: string
+  email: string
+  telephoneNumber: string
+  field: string
+  user: string
 }
 
-const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, price, id, isUpfront }) => {
+const Card: FC<FieldCardProps> = ({
+  photoUrl,
+  fieldName,
+  orderDate,
+  timeSlots,
+  price,
+  id,
+  isUpfront,
+  isAlreadyPassed,
+}) => {
   const queryClient = useQueryClient()
 
   const deleteCartItem = cartStore((state) => state.deleteCartItem)
@@ -78,6 +93,8 @@ const Card: FC<FieldCardProps> = ({ photoUrl, fieldName, orderDate, timeSlots, p
           <p>{isUpfront ? 'DP 50%' : 'Dibayar Penuh'}</p>
 
           <p className='font-semibold'>{formatToRupiah(price)}</p>
+
+          {isAlreadyPassed && <p className='text-red-500'>Jadwal pada item ini sudah lewat</p>}
         </div>
 
         <button

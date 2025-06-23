@@ -173,6 +173,7 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
   const {
     isPending: isPendingAddCart,
     isSuccess: isSuccessAddCart,
+    reset: resetAddCart,
     mutate: mutateAddCart,
   } = useMutation<DetailCartResponse, BaseResponse, CreateCartRequest>({
     mutationFn: async (data) => {
@@ -199,6 +200,8 @@ const FieldOrderModal: FC<FieldOrderModalProps> = ({ fieldId, fieldName, fieldPr
       addCartItem(response.data)
 
       setIsUpfrontOptions(isUpfrontDefaultOptions)
+
+      resetAddCart()
 
       resetForm()
 
