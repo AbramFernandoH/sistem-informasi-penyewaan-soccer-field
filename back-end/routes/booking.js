@@ -11,9 +11,11 @@ const { nanoid } = require('nanoid')
 const snap = require('../utils/midtrans')
 const { sha512 } = require('js-sha512')
 const { DateTime } = require('luxon')
-const { timeSlots } = require("../utils/constants");
-const { calculatePaymentAmount } = require("../utils/helper");
+const CONSTANTS = require("../utils/constants");
+const { calculatePaymentAmount, formattedEmailDate, formatIndonesianDate } = require("../utils/helper");
 const mongoose = require("mongoose");
+const sendEmail = require('../utils/sendEmail');
+const { successfulBookingTemplate, successfulGuestBookingTemplate, paymentConfirmationTemplate, upfrontPaymentConfirmationTemplate } = require('../utils/htmlTemplates');
 
 router.get('/', requireAuth('cms'), async (req, res) => {
     try {
@@ -213,6 +215,12 @@ router.post('/add-registered-first-transaction', requireAuth('pwa'), async (req,
         newBooking.payments.push(firstPayment._id);
         await newBooking.save();
 
+        await sendEmail(
+            email,
+            `Konfirmasi Pembayaran${firstTransactionPrice !== price ? ' Pertama (DP)' : ''} - Goedang Futsal`,
+            firstTransactionPrice !== price ? upfrontPaymentConfirmationTemplate(name, formatIndonesianDate(orderDate), CONSTANTS.timeSlots[timeSlots[0]], firstTransactionPrice.toLocaleString('id-ID'), price.toLocaleString('id-ID'), transaction.redirect_url) : paymentConfirmationTemplate(name, formatIndonesianDate(orderDate), CONSTANTS.timeSlots[timeSlots[0]], price.toLocaleString('id-ID'), transaction.redirect_url),
+        );
+
         return res.status(200).json({
             code: 200,
             message: 'OK',
@@ -281,6 +289,12 @@ router.post('/:bookingId/add-registered-second-transaction', requireAuth('cms'),
 
         booking.payments.push(secondPayment._id);
         await booking.save()
+
+        await sendEmail(
+            email,
+            'Konfirmasi Pembayaran Kedua (Pelunasan) - Goedang Futsal',
+            secondPaymentConfirmationTemplate(name, formattedEmailDate(orderDate), CONSTANTS.timeSlots[booking.timeSlots[0]], secondTransactionPrice.toLocaleString('id-ID'), price.toLocaleString('id-ID'), transaction.redirect_url),
+        );
 
         return res.status(200).json({
             code: 200,
@@ -363,6 +377,12 @@ router.post('/add-guest-transaction', async (req, res) => {
         newBooking.payments.push(payment._id);
         await newBooking.save();
 
+        await sendEmail(
+            email,
+            'Konfirmasi Pembayaran - Goedang Futsal',
+            paymentConfirmationTemplate(name, formatIndonesianDate(orderDate), CONSTANTS.timeSlots[timeSlots[0]], price.toLocaleString('id-ID'), transaction.redirect_url),
+        );
+
         return res.status(200).json({
             code: 200,
             message: 'OK',
@@ -426,7 +446,7 @@ router.post('/callback', async (req, res) => {
             .toFormat('dd LLLL yyyy')
 
         const slots = booking.timeSlots
-        const bookedSlots = slots.map(index => timeSlots[index]).join(', ')
+        const bookedSlots = slots.map(index => CONSTANTS.timeSlots[index]).join(', ')
 
         const rentInfo = `Sewa ${booking.field.name} oleh ${booking.name} - Tanggal ${formatedDate} - Jam ${bookedSlots}`
 
@@ -445,6 +465,12 @@ router.post('/callback', async (req, res) => {
             booking: booking._id,
             createdBy: null,
         });
+
+        await sendEmail(
+            booking.email,
+            'Pembayaran Booking Berhasil - Goedang Futsal',
+            booking.user === null ? successfulGuestBookingTemplate(booking.name, formattedEmailDate(booking.orderDate), CONSTANTS.timeSlots[booking.timeSlots[0]], booking.price.toLocaleString('id-ID')) : successfulBookingTemplate(booking.name, formattedEmailDate(booking.orderDate), CONSTANTS.timeSlots[booking.timeSlots[0]], booking.price.toLocaleString('id-ID')),
+        );
     } else if (['cancel', 'deny', 'expire'].includes(transaction_status)) {
         const booking = await Booking.findOne({ 'payments.orderId': order_id })
 

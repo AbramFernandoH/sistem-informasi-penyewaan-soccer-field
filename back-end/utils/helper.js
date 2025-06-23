@@ -8,6 +8,22 @@ const calculatePaymentAmount = (bookingDate, totalPrice) => {
     return diffInDays >= 3 ? totalPrice / 2 : totalPrice
 };
 
-const HELPER = { calculatePaymentAmount }
+const formattedEmailDate = (isoString) => {
+    const date = DateTime.fromFormat(new Date(isoString).toDateString(), 'ccc LLL dd yyyy', { zone: 'utc' });
+
+    if (!date.isValid) return 'Invalid date';
+
+    return date.setLocale('id').toFormat('cccc, dd LLLL yyyy');
+}
+
+const formatIndonesianDate = (dateString) => {
+    const date = DateTime.fromFormat(dateString, 'yyyy-MM-dd', { zone: 'utc' });
+
+    if (!date.isValid) return 'Invalid date';
+
+    return date.setLocale('id').toFormat('cccc, dd LLLL yyyy');
+}
+
+const HELPER = { calculatePaymentAmount, formattedEmailDate, formatIndonesianDate }
 
 module.exports = HELPER;
