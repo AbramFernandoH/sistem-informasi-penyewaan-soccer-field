@@ -25,10 +25,10 @@ router.post(
                 const hashed = await bcrypt.hash(password, 10);
                 const user = await User.create({ ...req.body, password: hashed });
                 const data = {
-                    _id: data._id,
-                    email: data.email,
-                    fullName: data.fullName,
-                    telephoneNumber: data.telephoneNumber,
+                    _id: user._id,
+                    email: user.email,
+                    fullName: user.fullName,
+                    telephoneNumber: user.telephoneNumber,
                 }
 
                 return res.status(200).json({
@@ -38,7 +38,8 @@ router.post(
                     data,
                 });
             }
-        } catch {
+        } catch (err) {
+            console.log(err)
             return res.status(500).json({
                 code: 500,
                 success: false,
