@@ -12,14 +12,14 @@ export default function About() {
                 <div className='w-full px-3 sm:px-4 xl:w-1/2'>
                   <div className='py-3 sm:py-4'>
                     <img
-                      src='https://cdn.tailgrids.com/assets/images/marketing/about/about-01/image-1.jpg'
+                      src='/about-us-pic-4.jpeg'
                       alt=''
                       className='w-full rounded-2xl'
                     />
                   </div>
                   <div className='py-3 sm:py-4'>
                     <img
-                      src='https://cdn.tailgrids.com/assets/images/marketing/about/about-01/image-2.jpg'
+                      src='/about-us-pic-2.jpeg'
                       alt=''
                       className='w-full rounded-2xl'
                     />
@@ -28,7 +28,7 @@ export default function About() {
                 <div className='w-full px-3 sm:px-4 xl:w-1/2'>
                   <div className='relative z-10 my-4'>
                     <img
-                      src='https://cdn.tailgrids.com/assets/images/marketing/about/about-01/image-3.jpg'
+                      src='/about-us-pic-1.jpeg'
                       alt=''
                       className='w-full rounded-2xl'
                     />
