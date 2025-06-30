@@ -38,9 +38,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // parse req.cookie
 app.use(cookieParser());
-// ✅ Enable CORS for localhost:3000
+// ✅ Enable CORS
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONT_END_URL || 'http://localhost:3000',
     credentials: true,
 }));
 
