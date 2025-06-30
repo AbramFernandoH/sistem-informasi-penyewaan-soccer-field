@@ -22,6 +22,7 @@ const BarChart: FC<BarChartProps> = ({ data }) => {
     }
 
     return []
+    // eslint-disable-next-line
   }, data)
 
   const totalBookingData = useMemo(() => {
@@ -30,6 +31,7 @@ const BarChart: FC<BarChartProps> = ({ data }) => {
     }
 
     return []
+    // eslint-disable-next-line
   }, data)
 
   const options: ApexOptions = {

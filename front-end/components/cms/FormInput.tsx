@@ -50,7 +50,7 @@ const FormInput = <TFormValues extends Record<string, unknown>>({
         />
       )}
 
-      {control && (
+      {control ? (
         <Controller
           name={name}
           control={control}
@@ -71,7 +71,7 @@ const FormInput = <TFormValues extends Record<string, unknown>>({
                 label={label}
                 name={name}
                 onChange={handleChange}
-                value={value}
+                value={value as string | number | readonly string[] | undefined}
                 className={error ? 'border-mdi-danger focus:border-mdi-danger' : 'focus:border-mdi-primary'}
                 {...props}
                 {...(register && register(name, rules))}
@@ -79,9 +79,7 @@ const FormInput = <TFormValues extends Record<string, unknown>>({
             )
           }}
         />
-      )}
-
-      {!control && (
+      ) : (
         <Input
           label={label}
           name={name}

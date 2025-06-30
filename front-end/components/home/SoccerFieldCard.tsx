@@ -10,6 +10,7 @@ export type SoccerFieldCardProps = {
 const SoccerFieldCard: FC<SoccerFieldCardProps> = ({ price, title, imgUrl }) => {
   return (
     <div className='group relative'>
+      {/* eslint-disable-next-line */}
       <img
         src={imgUrl}
         alt={`Foto ${title}`}

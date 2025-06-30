@@ -212,6 +212,7 @@ export default function CreateReport() {
         return newValue
       })
     }
+    // eslint-disable-next-line
   }, [isSuccessDetailField, dataDetailField])
 
   return (

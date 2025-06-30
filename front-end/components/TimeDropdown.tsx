@@ -49,12 +49,14 @@ const TimeDropdown: FC<TimeDropdownProps> = ({
     const initial = getInitialTimeOptions()
     setTimeOptions(initial)
     setSelectedTime(initial.filter((opt) => opt.selected))
+    // eslint-disable-next-line
   }, [resetSignal])
 
   useEffect(() => {
     if (options.length > 0) {
       setTimeOptions(options)
     }
+    // eslint-disable-next-line
   }, [options[0]?.xid])
 
   return (

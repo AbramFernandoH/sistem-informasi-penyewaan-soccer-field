@@ -316,6 +316,7 @@ export default function DetailPayment() {
                           href={dataDetailBooking.data.refundProof}
                           target='_blank'
                         >
+                          {/* eslint-disable-next-line */}
                           <img
                             src={dataDetailBooking.data.refundProof}
                             alt='Foto bukti refund'

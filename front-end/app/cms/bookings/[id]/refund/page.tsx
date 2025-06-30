@@ -19,7 +19,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { ENV } from '@/utils/constants'
 import toast from 'react-hot-toast'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { adminProfileStore } from '@/stores/adminProfile'
 
 export default function RefundBooking() {
@@ -125,11 +125,21 @@ export default function RefundBooking() {
     },
   })
 
-  const breadcrumbsPages: BreadcrumbData[] = [
-    { name: 'List Booking', path: '/cms/bookings', current: false },
-    { name: 'Detail Booking', path: `/cms/bookings/${params.id}`, current: false },
-    { name: 'Refund Booking', path: `/cms/bookings/${params.id}/refund`, current: true },
-  ]
+  const breadcrumbsPages: BreadcrumbData[] = useMemo(() => {
+    if (params.id) {
+      return [
+        { name: 'List Booking', path: '/cms/bookings', current: false },
+        { name: 'Detail Booking', path: `/cms/bookings/${params.id}`, current: false },
+        { name: 'Refund Booking', path: `/cms/bookings/${params.id}/refund`, current: true },
+      ]
+    }
+
+    return [
+      { name: 'List Booking', path: '/cms/bookings', current: false },
+      { name: 'Detail Booking', path: '/cms/bookings/', current: false },
+      { name: 'Refund Booking', path: '/cms/bookings//refund', current: true },
+    ]
+  }, [params.id])
 
   const handleDropImage = async (droppedFile: File) => {
     mutateUploadRefundProofPhoto({

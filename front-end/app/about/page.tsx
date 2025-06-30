@@ -1,5 +1,6 @@
 import PwaLayout from '@/layouts/pwa'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function About() {
   return (
@@ -11,26 +12,32 @@ export default function About() {
               <div className='flex items-center -mx-3 sm:-mx-4'>
                 <div className='w-full px-3 sm:px-4 xl:w-1/2'>
                   <div className='py-3 sm:py-4'>
-                    <img
+                    <Image
                       src='/about-us-pic-4.jpeg'
-                      alt=''
+                      alt='about-us-pic-4'
                       className='w-full rounded-2xl'
+                      width={296}
+                      height={315}
                     />
                   </div>
                   <div className='py-3 sm:py-4'>
-                    <img
+                    <Image
                       src='/about-us-pic-2.jpeg'
-                      alt=''
+                      alt='about-us-pic-2'
                       className='w-full rounded-2xl'
+                      width={296}
+                      height={169}
                     />
                   </div>
                 </div>
                 <div className='w-full px-3 sm:px-4 xl:w-1/2'>
                   <div className='relative z-10 my-4'>
-                    <img
+                    <Image
                       src='/about-us-pic-1.jpeg'
                       alt=''
                       className='w-full rounded-2xl'
+                      width={296}
+                      height={183}
                     />
                     <span className='absolute -right-7 -bottom-7 z-[-1]'>
                       <svg

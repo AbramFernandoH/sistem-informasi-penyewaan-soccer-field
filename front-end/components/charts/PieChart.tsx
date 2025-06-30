@@ -21,6 +21,7 @@ const PieChart: FC<PieChartProps> = ({ data }) => {
     }
 
     return []
+    // eslint-disable-next-line
   }, data)
 
   const bookingCountData = useMemo(() => {
@@ -29,6 +30,7 @@ const PieChart: FC<PieChartProps> = ({ data }) => {
     }
 
     return []
+    // eslint-disable-next-line
   }, data)
 
   const options: ApexOptions = {

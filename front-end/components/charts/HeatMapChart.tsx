@@ -37,6 +37,7 @@ const HeatMapChart: FC<HeatMapChartProps> = ({ data }) => {
     }
 
     return []
+    // eslint-disable-next-line
   }, data)
 
   return (

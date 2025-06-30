@@ -241,6 +241,7 @@ export default function EditSchedule() {
 
       setFieldOptions(options)
     }
+    // eslint-disable-next-line
   }, [isSuccessListField, dataListField])
 
   useEffect(() => {
@@ -278,6 +279,7 @@ export default function EditSchedule() {
         setTimeOptions(options)
       }
     }
+    // eslint-disable-next-line
   }, [isSuccessListSchedule, dataListSchedule, isSuccessDetailSchedule, dataDetailSchedule, date])
 
   useEffect(() => {
@@ -307,6 +309,7 @@ export default function EditSchedule() {
         })
       }
     }
+    // eslint-disable-next-line
   }, [isSuccessDetailSchedule, dataDetailSchedule])
 
   return (

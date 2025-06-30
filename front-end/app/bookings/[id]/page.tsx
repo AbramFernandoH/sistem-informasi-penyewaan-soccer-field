@@ -136,9 +136,13 @@ const BookingDetail = () => {
                       href={dataDetailBooking.data.field.photo}
                       target='_blank'
                     >
+                      {/* eslint-disable-next-line */}
                       <img
                         src={dataDetailBooking.data.field.photo}
                         alt={`Foto ${dataDetailBooking.data.field.name}`}
+                        draggable={false}
+                        width={200}
+                        height={150}
                       />
                     </Link>
                   ) : (
@@ -179,6 +183,7 @@ const BookingDetail = () => {
                           href={dataDetailBooking.data.refundProof}
                           target='_blank'
                         >
+                          {/* eslint-disable-next-line */}
                           <img
                             src={dataDetailBooking.data.refundProof}
                             alt='Foto bukti refund'

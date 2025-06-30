@@ -13,12 +13,11 @@ export type InputProps = {
   prepend?: string | ReactNode
   appendClass?: string
   prependClass?: string
-  // defaultValue?: string | number
   appendAction?: () => void
   prependAction?: () => void
 } & DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
 
-export const Input: FC<any> = forwardRef<HTMLInputElement, InputProps>(
+const InputComponent: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       id,
@@ -31,7 +30,6 @@ export const Input: FC<any> = forwardRef<HTMLInputElement, InputProps>(
       prepend,
       appendClass,
       prependClass,
-      // defaultValue,
       appendAction,
       prependAction,
       ...props
@@ -42,15 +40,12 @@ export const Input: FC<any> = forwardRef<HTMLInputElement, InputProps>(
       <div className='relative'>
         {prepend && (
           <div
-            className={`absolute inset-y-0 left-0 flex items-center pl-3 ${!prependAction ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'}`}
+            className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+              !prependAction ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'
+            }`}
           >
             <span
-              onClick={() => {
-                if (prependAction) {
-                  return prependAction()
-                }
-                return
-              }}
+              onClick={prependAction}
               className={prependClass || ''}
             >
               {prepend}
@@ -66,20 +61,19 @@ export const Input: FC<any> = forwardRef<HTMLInputElement, InputProps>(
           type={type}
           aria-label={label}
           placeholder={placeholder}
-          className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 disabled:bg-gray-100 disabled:cursor-not-allowed ${prepend && 'pl-10'} ${append && 'pr-10'} ${className}`}
+          className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 disabled:bg-gray-100 disabled:cursor-not-allowed ${
+            prepend ? 'pl-10' : ''
+          } ${append ? 'pr-10' : ''} ${className}`}
         />
 
         {append && (
           <div
-            className={`absolute inset-y-0 right-0 flex items-center pr-3 ${!appendAction ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'}`}
+            className={`absolute inset-y-0 right-0 flex items-center pr-3 ${
+              !appendAction ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'
+            }`}
           >
             <span
-              onClick={() => {
-                if (appendAction) {
-                  return appendAction()
-                }
-                return
-              }}
+              onClick={appendAction}
               className={appendClass || ''}
             >
               {append}
@@ -90,3 +84,7 @@ export const Input: FC<any> = forwardRef<HTMLInputElement, InputProps>(
     )
   }
 )
+
+InputComponent.displayName = 'Input'
+
+export const Input = InputComponent

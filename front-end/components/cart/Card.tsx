@@ -75,6 +75,7 @@ const Card: FC<FieldCardProps> = ({
 
   return (
     <div className='flex py-6 space-x-4 lg:space-x-6 w-full'>
+      {/* eslint-disable-next-line */}
       <img
         src={photoUrl}
         alt='example field photo'
