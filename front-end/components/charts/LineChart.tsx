@@ -1,15 +1,37 @@
 'use client'
-import React from 'react'
+import { FC, useMemo } from 'react'
 
 import { ApexOptions } from 'apexcharts'
 
 import dynamic from 'next/dynamic'
+import { DashboardMonthlySummary } from '@/utils/type'
+import { INDONESIAN_MONTHS } from '@/utils/constants'
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 })
 
-export default function LineChart() {
+export type LineChartProps = {
+  data: DashboardMonthlySummary[]
+}
+
+const LineChart: FC<LineChartProps> = ({ data }) => {
+  const monthData = useMemo(() => {
+    if (data.length > 0) {
+      return data.map((summary) => INDONESIAN_MONTHS[summary.month - 1])
+    }
+
+    return []
+  }, data)
+
+  const totalRevenueData = useMemo(() => {
+    if (data.length > 0) {
+      return data.map((summary) => summary.totalRevenue)
+    }
+
+    return []
+  }, data)
+
   const options: ApexOptions = {
     legend: {
       show: false, // Hide legend
@@ -68,7 +90,7 @@ export default function LineChart() {
     },
     xaxis: {
       type: 'category', // Category-based x-axis
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      categories: monthData,
       axisBorder: {
         show: false, // Hide x-axis border
       },
@@ -97,14 +119,11 @@ export default function LineChart() {
 
   const series = [
     {
-      name: 'Sales',
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
-    },
-    {
-      name: 'Revenue',
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+      name: 'Total Booking',
+      data: totalRevenueData,
     },
   ]
+
   return (
     <div className='max-w-full overflow-x-auto custom-scrollbar'>
       <div
@@ -121,3 +140,5 @@ export default function LineChart() {
     </div>
   )
 }
+
+export default LineChart

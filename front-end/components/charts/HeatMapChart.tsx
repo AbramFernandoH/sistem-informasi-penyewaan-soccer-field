@@ -1,13 +1,19 @@
 'use client'
+import { FC, useMemo } from 'react'
 import { ApexOptions } from 'apexcharts'
 
 import dynamic from 'next/dynamic'
+import { DashboardTimeSlotUsage } from '@/utils/type'
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 })
 
-export default function HeatMapChart() {
+type HeatMapChartProps = {
+  data: DashboardTimeSlotUsage[]
+}
+
+const HeatMapChart: FC<HeatMapChartProps> = ({ data }) => {
   const options: ApexOptions = {
     chart: {
       height: 350,
@@ -19,83 +25,19 @@ export default function HeatMapChart() {
     colors: ['#008FFB'],
   }
 
-  const generateData = (value: number, { min, max }: { min: number; max: number }) => {
-    const data: number[] = []
-
-    for (let i = 0; i < value; i++) {
-      const randomNumber = Math.floor(Math.random() * max)
-
-      data.push(randomNumber < min ? min + 1 : randomNumber)
+  const series = useMemo(() => {
+    if (data.length > 0) {
+      return data.map((item) => ({
+        name: item.dayName,
+        data: item.data.map((val, idx) => ({
+          x: idx + 7 < 10 ? `0${idx + 7}` : idx + 7,
+          y: val,
+        })),
+      }))
     }
 
-    return data
-  }
-
-  const series = [
-    {
-      name: '07:00',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric2',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric3',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric4',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric5',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric6',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric7',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric8',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-    {
-      name: 'Metric9',
-      data: generateData(15, {
-        min: 0,
-        max: 90,
-      }),
-    },
-  ]
+    return []
+  }, data)
 
   return (
     <div className='max-w-full overflow-x-auto custom-scrollbar'>
@@ -113,3 +55,5 @@ export default function HeatMapChart() {
     </div>
   )
 }
+
+export default HeatMapChart

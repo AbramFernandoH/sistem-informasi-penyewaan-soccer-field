@@ -224,3 +224,31 @@ export type CreateCartRequest = {
   price: number
   isUpfront: boolean
 }
+
+// Dashboard
+
+export type Dashboard = {
+  monthlySummary: DashboardMonthlySummary[]
+  fieldSummary: DashboardFieldSummary[]
+  timeSlotUsage: DashboardTimeSlotUsage[]
+}
+
+export type DashboardResponse = BaseResponse<Dashboard>
+
+export type DashboardMonthlySummary = {
+  year: number
+  month: number
+  totalRevenue: number
+  totalBookings: number
+}
+
+export type DashboardFieldSummary = {
+  bookingCount: number
+  fieldId: string
+  name: string
+}
+
+export type DashboardTimeSlotUsage = {
+  dayName: string
+  data: number[]
+}

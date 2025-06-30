@@ -1,21 +1,42 @@
 'use client'
-import React from 'react'
+import { FC, useMemo } from 'react'
 
 import { ApexOptions } from 'apexcharts'
 
 import dynamic from 'next/dynamic'
+import { DashboardFieldSummary } from '@/utils/type'
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 })
 
-export default function PieChart() {
+type PieChartProps = {
+  data: DashboardFieldSummary[]
+}
+
+const PieChart: FC<PieChartProps> = ({ data }) => {
+  const fieldNamesData = useMemo(() => {
+    if (data.length > 0) {
+      return data.map((summary) => summary.name)
+    }
+
+    return []
+  }, data)
+
+  const bookingCountData = useMemo(() => {
+    if (data.length > 0) {
+      return data.map((summary) => summary.bookingCount)
+    }
+
+    return []
+  }, data)
+
   const options: ApexOptions = {
     chart: {
       width: 380,
       type: 'pie',
     },
-    labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+    labels: fieldNamesData,
     responsive: [
       {
         breakpoint: 480,
@@ -31,8 +52,6 @@ export default function PieChart() {
     ],
   }
 
-  const series = [44, 55, 13, 43, 22]
-
   return (
     <div className='max-w-full overflow-x-auto custom-scrollbar'>
       <div
@@ -41,7 +60,7 @@ export default function PieChart() {
       >
         <ReactApexChart
           options={options}
-          series={series}
+          series={bookingCountData}
           type='pie'
           height={310}
         />
@@ -49,3 +68,5 @@ export default function PieChart() {
     </div>
   )
 }
+
+export default PieChart

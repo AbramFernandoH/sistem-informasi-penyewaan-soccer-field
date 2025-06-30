@@ -44,3 +44,5 @@ export const SCHEDULE_COLORS = [
   { card: '#ECFCCB', text: '#365314', hover: '#D9F99D' }, // lime
   { card: '#FEE2E2', text: '#991B1B', hover: '#FECACA' }, // rose
 ]
+
+export const INDONESIAN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des']

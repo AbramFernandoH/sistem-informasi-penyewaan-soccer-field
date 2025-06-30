@@ -24,9 +24,9 @@ const BarChart: FC<BarChartProps> = ({ data }) => {
     return []
   }, data)
 
-  const totalBookingData = useMemo(() => {
+  const totalRevenueBookingData = useMemo(() => {
     if (data.length > 0) {
-      return data.map((summary) => summary.totalBookings)
+      return data.map((summary) => summary.totalRevenue)
     }
 
     return []
@@ -101,8 +101,8 @@ const BarChart: FC<BarChartProps> = ({ data }) => {
 
   const series = [
     {
-      name: 'Total Booking',
-      data: totalBookingData,
+      name: 'Pendapatan Booking',
+      data: totalRevenueBookingData,
     },
   ]
 
