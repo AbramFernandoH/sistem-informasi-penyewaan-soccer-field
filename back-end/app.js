@@ -6,6 +6,7 @@ const MongoStore = require("connect-mongo");
 const cookieParser = require("cookie-parser");
 const cron = require('node-cron');
 const cleanupPendingBookings = require('./jobs/cleanupPendingBookings');
+const cleanupUnverifiedAccount = require('./jobs/cleanupUnverifiedAccount');
 
 // routes
 const authRoutes = require('./routes/auth');
@@ -75,8 +76,9 @@ app.use('/dashboard', dashboardRoutes);
 
 // Run at minute 0 of every hour
 cron.schedule('0 * * * *', async () => {
-    console.log('⏰ Running cleanupPendingBookings job every hour...');
+    console.log('⏰ Running cleanupPendingBookings and cleanupUnverifiedAccount job every hour...');
     await cleanupPendingBookings();
+    await cleanupUnverifiedAccount();
 });
 
 app.listen(PORT, () => {

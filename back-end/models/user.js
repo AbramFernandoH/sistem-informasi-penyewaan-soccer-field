@@ -18,6 +18,17 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    emailVerificationToken: {
+        type: String,
+    },
+    emailVerificationExpires: {
+        type: Number,
+        default: null,
+    },
 });
 
 module.exports = mongoose.model('User', UserSchema);
