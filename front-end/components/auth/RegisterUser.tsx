@@ -67,7 +67,7 @@ export default function RegisterUser() {
       // Invalidate and refetch
       await queryClient.invalidateQueries({ queryKey: ['pwa-auth'] })
 
-      toast.success('Daftar akun berhasil')
+      toast.success('Cek email anda untuk verifikasi email anda', { duration: 10000 })
 
       router.push('/login')
     },

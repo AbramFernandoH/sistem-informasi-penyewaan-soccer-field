@@ -81,6 +81,8 @@ export default function LoginUser() {
     onError: (err) => {
       if (err.message.includes('Invalid credentials')) {
         toast.error('Email dan/atau password salah')
+      } else if (err.message === 'Please verify your email before logging in.') {
+        toast.error('Verifikasi email anda terlebih dahulu')
       }
     },
   })
