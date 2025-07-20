@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/booking');
+const Report = require('../models/report');
 const { requireAuth } = require('../middleware');
 
 const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -131,6 +132,50 @@ router.get('/', requireAuth('cms'), async (req, res) => {
             data
         }));
 
+        // 4. Data Summary
+        const [bookingStats] = await Booking.aggregate([
+            {
+                $match: {
+                    orderDate: { $gte: startDate, $lte: now },
+                    status: { $in: ['half_paid', 'fully_paid'] }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalBookings: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const reportSummary = await Report.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: now }
+                }
+            },
+            {
+                $group: {
+                    _id: "$type",
+                    total: { $sum: "$totalPrice" }
+                }
+            }
+        ]);
+
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        reportSummary.forEach(item => {
+            if (item._id === 'income') totalIncome = item.total;
+            else if (item._id === 'expense') totalExpense = item.total;
+        });
+
+        const dataSummary = {
+            totalBookings: bookingStats?.totalBookings || 0,
+            totalIncome,
+            totalExpense
+        };
+
         return res.status(200).json({
             code: 200,
             message: 'OK',
@@ -138,7 +183,8 @@ router.get('/', requireAuth('cms'), async (req, res) => {
             data: {
                 monthlySummary: formattedMonthly,
                 fieldSummary,
-                timeSlotUsage
+                timeSlotUsage,
+                dataSummary
             },
         });
     } catch {
