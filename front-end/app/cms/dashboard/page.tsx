@@ -4,14 +4,15 @@ import BarChart from '@/components/charts/BarChart'
 import PieChart from '@/components/charts/PieChart'
 import HeatMapChart from '@/components/charts/HeatMapChart'
 import ComponentCard from '@/components/cms/Card'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import DashboardFilter from '@/components/cms/DashboardFilter'
 import { useQuery } from '@tanstack/react-query'
 import { DashboardResponse } from '@/utils/type'
 import { ENV } from '@/utils/constants'
-import { fetchWithAuth } from '@/utils/helper'
+import { addDotsToNumber, fetchWithAuth } from '@/utils/helper'
 import Shimmer from '@/components/Shimmer'
 import BarChartBookingIncome from '@/components/charts/BarChartBookingIncome'
+import DashboardInfosCard, { DashboardStats } from '@/components/DashboardInfosCard'
 
 export default function Dashboard() {
   const [selectedMonth, setSelectedMonth] = useState<3 | 6 | 12>(3)
@@ -32,6 +33,19 @@ export default function Dashboard() {
     },
   })
 
+  const stats: DashboardStats[] = useMemo(() => {
+    if (data && data.data) {
+      const entries = Object.entries(data.data.dataSummary)
+
+      return entries.map((entry, idx) => ({
+        name: idx === 0 ? 'Total Booking' : idx === 1 ? 'Total Pemasukan' : 'Total Pengeluaran',
+        value: idx === 0 ? addDotsToNumber(entry[1]) : `Rp ${addDotsToNumber(entry[1])}`,
+      }))
+    }
+
+    return []
+  }, [data])
+
   const handleClickMonth = (month: 3 | 6 | 12) => () => {
     setSelectedMonth(month)
   }
@@ -48,6 +62,8 @@ export default function Dashboard() {
 
         {!isPending && data && data.data ? (
           <>
+            <DashboardInfosCard stats={stats} />
+
             <ComponentCard title='Jumlah Booking'>
               <BarChart data={data.data.monthlySummary} />
             </ComponentCard>
@@ -66,6 +82,15 @@ export default function Dashboard() {
           </>
         ) : (
           <>
+            <div className='flex items-center justify-between space-x-6'>
+              {[1, 2, 3].map((_, idx) => (
+                <Shimmer
+                  key={`data-${idx}`}
+                  className='grow h-[120px]'
+                />
+              ))}
+            </div>
+
             <Shimmer className='w-full h-[320px]' />
 
             <Shimmer className='w-full h-[420px]' />

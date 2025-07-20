@@ -6,6 +6,7 @@ import { ApexOptions } from 'apexcharts'
 import dynamic from 'next/dynamic'
 import { DashboardMonthlySummary } from '@/utils/type'
 import { INDONESIAN_MONTHS } from '@/utils/constants'
+import { addDotsToNumber } from '@/utils/helper'
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
@@ -96,7 +97,7 @@ const BarChart: FC<BarChartProps> = ({ data }) => {
         show: false,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val: number) => `Rp ${addDotsToNumber(val)}`,
       },
     },
   }

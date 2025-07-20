@@ -233,6 +233,7 @@ export type Dashboard = {
   monthlySummary: DashboardMonthlySummary[]
   fieldSummary: DashboardFieldSummary[]
   timeSlotUsage: DashboardTimeSlotUsage[]
+  dataSummary: DashboardDataSummary
 }
 
 export type DashboardResponse = BaseResponse<Dashboard>
@@ -253,4 +254,10 @@ export type DashboardFieldSummary = {
 export type DashboardTimeSlotUsage = {
   dayName: string
   data: number[]
+}
+
+export type DashboardDataSummary = {
+  totalBookings: number
+  totalIncome: number
+  totalExpense: number
 }
