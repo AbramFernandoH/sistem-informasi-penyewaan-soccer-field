@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import Pagination from '@/components/cms/Pagination'
 import EmptyState from '@/components/cms/EmptyState'
+import Filters, { FilterProps } from '@/components/cms/Filter'
 
 export type TableProps = {
   title: string
@@ -20,6 +21,7 @@ export type TableProps = {
   emptyStateText?: string
   handleClickPrev?: () => void
   handleClickNext?: () => void
+  filters?: FilterProps
 }
 
 const Table: FC<TableProps> = ({
@@ -33,6 +35,7 @@ const Table: FC<TableProps> = ({
   emptyStateText,
   handleClickPrev = () => {},
   handleClickNext = () => {},
+  filters,
 }) => {
   return (
     <>
@@ -56,6 +59,12 @@ const Table: FC<TableProps> = ({
           </div>
         )}
       </div>
+
+      {filters && (
+        <div className='mt-8'>
+          <Filters {...filters} />
+        </div>
+      )}
 
       <div className='mt-8 flow-root'>
         <div className='-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>

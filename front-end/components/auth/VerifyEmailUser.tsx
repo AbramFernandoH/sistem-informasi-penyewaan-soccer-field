@@ -33,9 +33,7 @@ const VerifyEmailUser = () => {
     },
     onError: (err) => {
       if (err.message === 'Token expired' || err.message === 'User not found') {
-        if (err.message === 'Token expired') {
-          toast.error('Token anda telah hangus, silahkan registrasi ulang', { duration: 10000 })
-        }
+        toast.error('Token anda telah hangus, silahkan registrasi ulang', { duration: 10000 })
 
         router.push('/register')
       }
@@ -45,7 +43,9 @@ const VerifyEmailUser = () => {
   useEffect(() => {
     const token = searchParams.get('token')
 
-    if (token) {
+    if (token === null) {
+      router.push('/register')
+    } else {
       mutate()
     }
     // eslint-disable-next-line

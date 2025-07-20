@@ -11,25 +11,58 @@ import { ENV } from '@/utils/constants'
 import { ReactNode, useEffect, useState } from 'react'
 import DeleteModal from '@/components/DeleteModal'
 import toast from 'react-hot-toast'
+import { DropdownOption } from '@/components/cms/Dropdown'
+import { format } from 'date-fns'
 
 export default function Reports() {
   const queryClient = useQueryClient()
 
-  const [skip, setSkip] = useState(0)
-  const [page, setPage] = useState(1)
   const [tableData, setTableData] = useState<(string | ReactNode)[][]>([])
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
 
-  const { data: dataListReport, isSuccess: isSuccessListReport } = useQuery<
-    ListReportRequest,
-    unknown,
-    ListReportResponse
-  >({
-    queryKey: ['report', skip],
+  const queryParamsDefaultValue = {
+    skip: 0,
+    page: 1,
+    search: '',
+    startDate: '',
+    endDate: '',
+    sortBy: 'desc',
+  }
+  const [queryParams, setQueryParams] = useState(queryParamsDefaultValue)
+
+  const sortByDefaultValue = [
+    {
+      xid: 'desc',
+      value: 'Terbaru',
+      selected: true,
+    },
+    {
+      xid: 'asc',
+      value: 'Terlama',
+      selected: false,
+    },
+  ]
+  const [sortByOptions, setSortByOptions] = useState<DropdownOption[]>(sortByDefaultValue)
+
+  const {
+    data: dataListReport,
+    isSuccess: isSuccessListReport,
+    isPending: isPendingListReport,
+  } = useQuery<ListReportRequest, unknown, ListReportResponse>({
+    queryKey: ['report', queryParams],
     refetchOnWindowFocus: false,
     queryFn: async () => {
-      const res = await fetchWithAuth('cms', `${ENV.API_URL}/reports?skip=${skip}`)
+      const params = {
+        skip: String(queryParams.skip),
+        sortBy: queryParams.sortBy,
+        search: queryParams.search,
+        startDate: queryParams.startDate,
+        endDate: queryParams.endDate,
+      }
+      const queryString = new URLSearchParams(params).toString()
+
+      const res = await fetchWithAuth('cms', `${ENV.API_URL}/reports?${queryString}`)
 
       if (!res.ok) {
         const errorData = await res.json()
@@ -78,7 +111,7 @@ export default function Reports() {
   })
 
   const breadcrumbsPages: BreadcrumbData[] = [{ name: 'List Laporan', path: '/cms/reports', current: true }]
-  const tableHeaders = ['Nama', 'Jenis', 'Jumlah', 'Action']
+  const tableHeaders = ['Nama', 'Dibuat Pada', 'Jenis', 'Jumlah', 'Action']
 
   const handleClickOpenDeleteModal = (report: Report) => () => {
     setIsOpenDeleteModal(true)
@@ -95,13 +128,69 @@ export default function Reports() {
   }
 
   const handleClickPrev = () => {
-    setSkip(skip > 0 ? skip - 10 : 0)
-    setPage(page > 1 ? page - 1 : 1)
+    setQueryParams((prev) => ({
+      ...prev,
+      page: prev.page > 1 ? prev.page - 1 : 1,
+      skip: prev.skip > 0 ? prev.skip - 10 : 0,
+    }))
   }
 
   const handleClickNext = () => {
-    setSkip(skip + 10)
-    setPage(page + 1)
+    setQueryParams((prev) => ({
+      ...prev,
+      page: prev.page + 1,
+      skip: prev.skip + 10,
+    }))
+  }
+
+  const handleChangeSearch = (value: string) => {
+    setQueryParams((prev) => ({
+      ...prev,
+      search: value,
+      page: 1,
+      skip: 0,
+    }))
+  }
+
+  const handleChangeSortBy = (newSelectedOption: DropdownOption) => {
+    const newOptions = sortByOptions.map((option) => ({ ...option, selected: false }))
+    const selectedIndex = newOptions.findIndex((option) => option.xid === newSelectedOption.xid)
+
+    if (selectedIndex !== -1) {
+      newOptions.splice(selectedIndex, 1, { ...newSelectedOption, selected: true })
+
+      setSortByOptions(newOptions)
+
+      setQueryParams((prev) => ({
+        ...prev,
+        sortBy: newSelectedOption.xid,
+        page: 1,
+        skip: 0,
+      }))
+    }
+  }
+
+  const handleChangeStartDate = (date: string) => {
+    setQueryParams((prev) => ({
+      ...prev,
+      startDate: date,
+      page: 1,
+      skip: 0,
+    }))
+  }
+
+  const handleChangeEndDate = (date: string) => {
+    setQueryParams((prev) => ({
+      ...prev,
+      endDate: date,
+      page: 1,
+      skip: 0,
+    }))
+  }
+
+  const handleClickReset = () => {
+    setQueryParams(queryParamsDefaultValue)
+    setSortByOptions(sortByDefaultValue)
   }
 
   useEffect(() => {
@@ -119,6 +208,7 @@ export default function Reports() {
               {report.name}
             </p>
           </div>,
+          format(report.createdAt as unknown as Date, 'dd/MM/yyyy HH:mm'),
           report.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
           <p
             key={`total-price-${report._id}`}
@@ -171,9 +261,25 @@ export default function Reports() {
           headers={tableHeaders}
           data={tableData}
           totalData={dataListReport?.data.metadata.count ?? 0}
-          currentPage={page}
+          currentPage={queryParams.page}
           handleClickPrev={handleClickPrev}
           handleClickNext={handleClickNext}
+          filters={{
+            handleChangeSearch,
+            sortByOptions,
+            handleChangeSortBy,
+            handleClickReset,
+            showDatePickers: true,
+            startDate: {
+              value: queryParams.startDate,
+              onChange: handleChangeStartDate,
+            },
+            endDate: {
+              value: queryParams.endDate,
+              onChange: handleChangeEndDate,
+            },
+            disabledReset: isPendingListReport,
+          }}
         />
       </CMSLayout>
 

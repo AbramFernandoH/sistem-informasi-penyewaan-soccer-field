@@ -180,6 +180,8 @@ export type Report = {
   booking: Booking | null
   createdBy: Admin | null
   attachment: string
+  createdAt: string
+  updatedAt: string
 }
 
 export type ListReportResponse = ListBaseResponse<Report>

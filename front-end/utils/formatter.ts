@@ -4,3 +4,5 @@ export const formatCurrency = (money: number | undefined, options?: Intl.NumberF
     options || { style: 'currency', currency: 'IDR', notation: 'standard', minimumFractionDigits: 0 }
   ).format(money || 0)
 }
+{
+}
