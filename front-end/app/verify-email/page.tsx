@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { getCookie } from '@/utils/helper'
 import { COOKIES } from '@/utils/constants'
 import { usePathname, useRouter } from 'next/navigation'
+import { Suspense } from 'react'
 
 export default function VerifyEmail() {
   const pathname = usePathname()
@@ -21,7 +22,9 @@ export default function VerifyEmail() {
 
   return (
     <Blank>
-      <VerifyEmailUser />
+      <Suspense fallback={null}>
+        <VerifyEmailUser />
+      </Suspense>
     </Blank>
   )
 }
