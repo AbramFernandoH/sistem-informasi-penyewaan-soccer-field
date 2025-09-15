@@ -69,6 +69,71 @@ router.get('/', requireAuth('cms'), async (req, res) => {
     }
 })
 
+router.get('/outcomes', requireAuth('cms'), async (req, res) => {
+    try {
+        const {
+            skip = 0,
+            search = '',
+            sortBy = 'desc',
+            startDate,
+            endDate,
+        } = req.query;
+
+        const currentSkip = Number(skip);
+        const sortOptions = {
+            createdAt: sortBy === 'asc' ? 1 : -1
+        };
+
+        const filters = { type: 'expense' };
+
+        // Search by name (case-insensitive)
+        if (search) {
+            filters.name = { $regex: search, $options: 'i' };
+        }
+
+        // Filter by date range
+        if (startDate || endDate) {
+            filters.createdAt = {};
+            if (startDate) filters.createdAt.$gte = new Date(startDate);
+            if (endDate) {
+                const nextDay = new Date(endDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                filters.createdAt.$lt = nextDay; // equivalent to "less than end of day"
+            }
+        }
+
+        const [listReport, totalReport] = await Promise.all([
+            Report.find(filters)
+                .populate('createdBy')
+                .sort(sortOptions)
+                .limit(10)
+                .skip(currentSkip),
+            Report.countDocuments(filters)
+        ]);
+
+        return res.status(200).json({
+            code: 200,
+            success: true,
+            message: 'OK',
+            data: {
+                items: listReport,
+                metadata: {
+                    limit: 10,
+                    skip: currentSkip,
+                    count: totalReport,
+                },
+            },
+        });
+    } catch {
+        return res.status(500).json({
+            code: 500,
+            success: false,
+            message: 'Failed to get list report',
+            data: null,
+        });
+    }
+});
+
 router.get('/:reportId', requireAuth('cms'), async (req, res) => {
     try {
         const report = await Report.findById(req.params.reportId);
